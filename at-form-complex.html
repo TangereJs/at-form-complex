@@ -72,7 +72,7 @@
         startIndex, // used for determining codeMode for at-form-codeMirror
         required, // holds value whether a property is required or not
         defaultValue, // holds the default value for the element
-        regularValue, // temporary holds the value from the at-form-complex.value property 
+        regularValue, // temporary holds the value from the at-form-complex.value property
         disabledValue, // holds the disabled value for a property
         formElement = false, // holds a reference to a newly created element
         fieldDiv // at-core-form class="field" wrapper for formElement
@@ -170,7 +170,7 @@
         // if property definition contains disabled property it can be string. if its string its converted to a bool
         disabledValue = isString(disabledValue) ? parseBool(disabledValue) : disabledValue;
 
-        // creation of elements        
+        // creation of elements
         var fieldDiv = document.createElement('div');
         fieldDiv.classList.add('field');
 
@@ -183,10 +183,10 @@
         case "code":
           formElement = document.createElement('at-form-codemirror');
           // *ij* name is required here so when value-changed event is first fired element has its name set
-          formElement.name = propertyName;
+          formElement.id = propertyName;
 
           formElement.addEventListener('value-changed', function (event) {
-            self._updateDataObject(event.target.name, event.detail.value);
+            self._updateDataObject(event.target.id, event.detail.value);
           });
           formElement.value = this.value[propertyName] ? this.value[propertyName] : '';
 
@@ -198,14 +198,14 @@
           // create paper-input
           formElement = document.createElement('at-form-input');
           // *ij* name is required here so when value-changed event is first fired element has its name set
-          formElement.name = propertyName;
+          formElement.id = propertyName;
 
           if (type === "number") {
             formElement.type = type;
           }
 
           formElement.addEventListener('value-changed', function (event) {
-            self._updateDataObject(event.target.name, event.detail.value);
+            self._updateDataObject(event.target.id, event.detail.value);
           });
 
           if (this.value.hasOwnProperty(propertyName) && this.value[propertyName] !== '') {
@@ -216,10 +216,10 @@
         case "password":
           formElement = document.createElement('at-form-password');
           // *ij* name is required here so when value-changed event is first fired element has its name set
-          formElement.name = propertyName;
+          formElement.id = propertyName;
 
           formElement.addEventListener('value-changed', function (event) {
-            self._updateDataObject(event.target.name, event.detail.value);
+            self._updateDataObject(event.target.id, event.detail.value);
           });
           formElement.value = new String(this.value[propertyName] ? this.value[propertyName] : '');
 
@@ -229,14 +229,14 @@
           // create at-form-checkbox
           formElement = document.createElement('at-form-checkbox');
           // *ij* name is required here so when value-changed event is first fired element has its name set
-          formElement.name = propertyName;
+          formElement.id = propertyName;
 
           if (propertyDefinition['xtype'] === 'toggle') {
             formElement.toggle = true;
           }
 
           formElement.addEventListener('value-changed', function (event) {
-            self._updateDataObject(event.target.name, event.detail.value);
+            self._updateDataObject(event.target.id, event.detail.value);
           });
           formElement.value = this.value[propertyName] ? this.value[propertyName] : '';
 
@@ -244,12 +244,12 @@
         case "enum":
           formElement = document.createElement('at-form-lookup');
           // *ij* name is required here so when value-changed event is first fired element has its name set
-          formElement.name = propertyName;
+          formElement.id = propertyName;
 
           formElement.available = propertyDefinition['xvaluelist'];
 
           formElement.addEventListener('value-changed', function (event) {
-            self._updateDataObject(event.target.name, event.detail.value);
+            self._updateDataObject(event.target.id, event.detail.value);
           });
           formElement.value = this.value[propertyName] ? this.value[propertyName] : '';
 
@@ -257,7 +257,7 @@
         case "lookup":
           formElement = document.createElement('at-form-lookup');
           // *ij* name is required here so when value-changed event is first fired element has its name set
-          formElement.name = propertyName;
+          formElement.id = propertyName;
 
           formElement.url = propertyDefinition['xurl'];
           if (formElement.url !== undefined) {
@@ -269,7 +269,7 @@
           }
 
           formElement.addEventListener('value-changed', function (event) {
-            self._updateDataObject(event.target.name, event.detail.value);
+            self._updateDataObject(event.target.id, event.detail.value);
           });
           formElement.value = this.value[propertyName] ? this.value[propertyName] : '';
 
@@ -277,10 +277,10 @@
         case "marked":
           formElement = document.createElement('at-form-markdown');
           // *ij* name is required here so when value-changed event is first fired element has its name set
-          formElement.name = propertyName;
+          formElement.id = propertyName;
 
           formElement.addEventListener('value-changed', function (event) {
-            self._updateDataObject(event.target.name, event.detail.value);
+            self._updateDataObject(event.target.id, event.detail.value);
           });
           formElement.value = this.value[propertyName] ? this.value[propertyName] : '';
 
@@ -288,24 +288,23 @@
         case "file":
           formElement = document.createElement('at-form-file');
           // *ij* name is required here so when value-changed event is first fired element has its name set
-          formElement.name = propertyName;
+          formElement.id = propertyName;
 
           formElement.addEventListener('value-changed', function (event) {
-            self._updateDataObject(event.target.name, event.detail.value);
+            self._updateDataObject(event.target.id, event.detail.value);
           });
           break;
         case "image":
           formElement = document.createElement('at-form-image');
           // *ij* name is required here so when value-changed event is first fired element has its name set
-          formElement.name = propertyName;
+          formElement.id = propertyName;
 
           formElement.addEventListener('value-changed', function (event) {
-            self._updateDataObject(event.target.name, event.detail.value);
+            self._updateDataObject(event.target.id, event.detail.value);
           });
           break;
         }
         // end of switch here
-        formElement.id = propertyName;
         var classesToAdd = propertyName.split(' ');
         for (var classesToAddIndex = 0; classesToAddIndex < classesToAdd.length; classesToAddIndex += 1) {
           if (classesToAdd[classesToAddIndex] !== '') {
@@ -336,17 +335,17 @@
     /* *ij*
      OK. Imperative data binding doesn't work in polymer anymore.
      It may happen in the future but not in near future.
-     Using at-core-form.data[field] = 'newValue' doesn't work. Its not possible to bind to at-core-form.data[field] to update field value automatically     
+     Using at-core-form.data[field] = 'newValue' doesn't work. Its not possible to bind to at-core-form.data[field] to update field value automatically
      Explained in https://github.com/Polymer/polymer/issues/1778 and https://github.com/Polymer/polymer/issues/1796
-     
+
      So, to solve this shortcoming a updateFormElementData function is introduced
      The purpose of this function is, obviously, to update a value of the specific field.
      This function will update the .data object and .value of the field with provided elementId.
      If the field with provided elementId doesn't exist a debug message will be loged in the console
-     
+
      Alternative to this approach is to create a completely new object each time you want to update the .data property
      IMO, this approach is a waste of time. An updateFormElementData function is much more efficient
-     
+
      Another alternative to this approach is to have a function that will return the element itself. Than the client can do whatever he likes with the element
      not just update value. This approach seems reasonable for setFieldState action in at-form-rule-edit
      */
