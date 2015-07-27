@@ -98,6 +98,8 @@
         textNode = document.createTextNode("Error. Schema doesn't contain a 'properties' property");
         p.appendChild(textNode);
         this.$.errorDiv.appendChild(p);
+      } else {
+        this.$.errorDiv.innerHTML = "";
       }
 
       for (propertyName in properties) {
