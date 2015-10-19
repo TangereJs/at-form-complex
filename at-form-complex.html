@@ -15,9 +15,13 @@
       border: 1px solid gray;
       padding: 0 5px;
     }
+
+    .hide-label {
+      display: none;
+    }
   </style>
   <template>
-    <div>
+    <div id="labelContainer">
       <label>{{label}}</label>
     </div>
     <div id="insertPoint" class="ui form"></div>
@@ -34,6 +38,11 @@
       label: {
         type: String,
         value: ''
+      },
+      hideTitle: {
+        type: Boolean,
+        value: false,
+        observer: 'hideTitleChanged'
       },
       schema: {
         type: Object,
@@ -66,7 +75,9 @@
     elementsToValidate: [],
     _scopeCssViaAttr: true,
     ready: function () {},
-
+    hideTitleChanged: function (newValue, oldValue) {
+      this.toggleClass("hide-label", newValue, this.$.labelContainer);
+    },
     schemaChanged: function (newValue, odlValue) {
       var
         self = this, // used in value-changed function closures
