@@ -15,8 +15,8 @@
       margin-top: 5%;
       margin-left: 5%;
       margin-right: 5%;
-    }    
-    
+    }
+
     .light-padding {
       margin-left: 4px;
       margin-right: 4px;
@@ -68,7 +68,8 @@
           },
           'dropdownDemo': {
             'title': 'Name',
-            'type': 'enum',
+            'type': 'string',
+            'xtype': 'enum',
             'xvaluelist': 'XML,JSON'
           },
           'codeMirrorDemo': {
@@ -79,7 +80,7 @@
         },
         'required': ['id', 'city']
       };
-      
+
       var data = {
         'id': 3213,
         'city': 'Boston',
@@ -88,20 +89,20 @@
         'activePera': false,
         'dropdownDemo': 'XML'
       };
-      
+
       var formComplex1 = document.getElementById("formComplex-1");
       formComplex1.schema = schema;
       formComplex1.value = data;
-      
-      
+
+
       data.id = 88585;
       data.name="This is sample name";
       data.city = "This is sample city";
-      data.dropdownDemo = 'JSON';      
+      data.dropdownDemo = 'JSON';
       var formComplex2 = document.getElementById('formComplex-2');
       formComplex2.schema = schema;
       formComplex2.value = data;
-      
+
     });
   </script>
 </body>
