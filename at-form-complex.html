@@ -130,7 +130,7 @@
             }
 
             fieldElement.addEventListener('value-changed', function(event) {
-              event.stopPropagation();
+              // event.stopPropagation();
               if (!self._isBatchUpdate) {
                 self._updateValueObject(event.target.id, event.detail.value);
               }
