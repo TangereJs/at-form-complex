@@ -76,7 +76,7 @@
     },
     elementsToValidate: [],
     _scopeCssViaAttr: true,
-    _supported_display_types: ["string", "number", "daterange", "boolean", "password", "radio", "toggle", "enum", "lookup", "file", "image", "code", "marked", "date", "time", "datetime", "textarea"],
+    _unsupported_types: ["object"],
     _isBatchUpdate: false,
     ready: function() {},
     hideTitleChanged: function(newValue, oldValue) {
@@ -108,56 +108,51 @@
         Object.keys(properties).forEach(function(propertyName) {
           propertyDefinition = properties[propertyName];
 
-          displayType = schemaHelpers.getDisplayType(propertyDefinition);
-          if (self._supported_display_types.indexOf(displayType) !== -1) {
-            // figure out the default value
-            defaultValue = propertyDefinition.default;
-            regularValue = self.value[propertyName];
-            // if defaultValue exists but regular value doesn't (this.value is not set)
-            if (schemaHelpers.notNullOrEmpty(defaultValue) && schemaHelpers.isNullOrEmpty(regularValue)) {
-              // add defaultValue to the this.value object
-              self.value[propertyName] = defaultValue;
-            }
-
-            fieldContainer = document.createElement('div');
-            Polymer.dom(fieldContainer).classList.add('field');
-
-            fieldElement = schemaHelpers.AtFormFactory.createElement(propertyName, displayType, propertyDefinition);
-
-            if (schemaHelpers.isNullOrEmpty(self.value[propertyName])) {
-              // at-form-complex.value doesn't contain an entry for the current property
-              // add initial value of the formElement to the at-form-complex.value
-              self.value[propertyName] = fieldElement.value;
-            } else {
-              // else set initial value from at-form-complex.value to fromElement
-              if (displayType !== 'file' && displayType !== 'image' && displayType !== 'daterange') {
-                formElement.value = self.value[propertyName];
-              }
-            }
-
-            fieldElement.addEventListener('value-changed', function(event) {
-              // event.stopPropagation();
-              if (!self._isBatchUpdate) {
-                self._updateValueObject(event.target.id, event.detail.value);
-              }
-            });
-
-            Polymer.dom(fieldElement).setAttribute('id', propertyName);
-            if (fieldElement.required) {
-              self.elementsToValidate.push(fieldElement);
-            }
-
-            // append paper element to its container
-            Polymer.dom(fieldContainer).appendChild(fieldElement);
-            // add container to as child to insertPoint
-            Polymer.dom(fieldsContainer).appendChild(fieldContainer);
-
-            // udpate the disabled status
-            self.disabledChanged(self.disabled, self.disabled);
-          } else {
-            console.log('Display type ' + displayType + ' not supported by at-form-complex. Supported display types are ' + schemaHelpers.formatJson(self._supported_display_types));
-            console.log('Property definition: ' + schemaHelpers.formatJson(propertyDefinition));
+          displayType = schemaHelpers.getDisplayType(propertyDefinition, self._unsupported_types);
+          // figure out the default value
+          defaultValue = propertyDefinition.default;
+          regularValue = self.value[propertyName];
+          // if defaultValue exists but regular value doesn't (this.value is not set)
+          if (schemaHelpers.notNullOrEmpty(defaultValue) && schemaHelpers.isNullOrEmpty(regularValue)) {
+            // add defaultValue to the this.value object
+            self.value[propertyName] = defaultValue;
           }
+
+          fieldContainer = document.createElement('div');
+          Polymer.dom(fieldContainer).classList.add('field');
+
+          fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
+
+          if (schemaHelpers.isNullOrEmpty(self.value[propertyName])) {
+            // at-form-complex.value doesn't contain an entry for the current property
+            // add initial value of the formElement to the at-form-complex.value
+            self.value[propertyName] = fieldElement.value;
+          } else {
+            // else set initial value from at-form-complex.value to fromElement
+            if (displayType !== 'file' && displayType !== 'image' && displayType !== 'daterange') {
+              formElement.value = self.value[propertyName];
+            }
+          }
+
+          fieldElement.addEventListener('value-changed', function(event) {
+            // event.stopPropagation();
+            if (!self._isBatchUpdate) {
+              self._updateValueObject(event.target.id, event.detail.value);
+            }
+          });
+
+          Polymer.dom(fieldElement).setAttribute('id', propertyName);
+          if (fieldElement.required) {
+            self.elementsToValidate.push(fieldElement);
+          }
+
+          // append paper element to its container
+          Polymer.dom(fieldContainer).appendChild(fieldElement);
+          // add container to as child to insertPoint
+          Polymer.dom(fieldsContainer).appendChild(fieldContainer);
+
+          // udpate the disabled status
+          self.disabledChanged(self.disabled, self.disabled);
         });
       }
     },
