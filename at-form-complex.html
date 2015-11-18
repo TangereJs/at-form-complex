@@ -68,6 +68,12 @@
         observer: 'disabledChanged'
       }
     },
+    $meta: {
+      title: "Object",
+      form: {
+        type: "object"
+      }
+    },
     elementsToValidate: [],
     _scopeCssViaAttr: true,
     _supported_display_types: ["string", "number", "daterange", "boolean", "password", "radio", "toggle", "enum", "lookup", "file", "image", "code", "marked", "date", "time", "datetime", "textarea"],
@@ -222,7 +228,7 @@
           }
         });
       } else {
-        console.log('at-form-complex expects objects as new value, but got '+ schemaHelpers.formatJson(newValue) + ' instead');
+        console.log('at-form-complex expects objects as new value, but got ' + schemaHelpers.formatJson(newValue) + ' instead');
       }
 
       this._isBatchUpdate = false;
@@ -255,7 +261,7 @@
       }
       var isValid = true;
 
-      this.elementsToValidate.forEach(function(element){
+      this.elementsToValidate.forEach(function(element) {
         if (isFunction(element.validate)) {
           var elementValid = element.validate();
           isValid = isValid && elementValid;
