@@ -34,10 +34,10 @@
         type: String,
         value: ''
       },
-      hideTitle: {
+      hideLabel: {
         type: Boolean,
         value: false,
-        observer: 'hideTitleChanged'
+        observer: 'hideLabelChanged'
       },
       schema: {
         type: Object,
@@ -81,7 +81,7 @@
     _unsupported_types: ["object"],
     _isBatchUpdate: false,
     ready: function() {},
-    hideTitleChanged: function(newValue, oldValue) {
+    hideLabelChanged: function(newValue, oldValue) {
       this.toggleClass("hide-label", newValue, this.$.labelContainer);
     },
     schemaChanged: function(newValue, odlValue) {
