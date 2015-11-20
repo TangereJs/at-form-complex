@@ -68,18 +68,16 @@
         observer: 'disabledChanged'
       }
     },
-    $meta: {
+    $meta: [{
       title: "Object",
-      form: {
-        type: "object"
-      }
-    },
+      type: "object"
+    }],
     elementsToValidate: [],
     _scopeCssViaAttr: true,
     // ------------------------------------------------------------
     // unsupported types
     // list type or xtype of the element that should not be supported by at-form-complex
-    // ------------------------------------------------------------    
+    // ------------------------------------------------------------
     _unsupported_types: ["object"],
     _isBatchUpdate: false,
     ready: function() {},
