@@ -9,18 +9,20 @@
       padding: 0 5px;
     }
 
-    .hide-label {
+    .hidden {
       display: none;
     }
   </style>
   <template>
     <at-core-theme></at-core-theme>
-    <div id="labelContainer">
-      <label>{{label}}</label>
-    </div>
-    <div id="insertPoint" class="ui form"></div>
-    <div id="errorContainer" class="errorContainer">
-      <p id="errorText"></p>
+    <div id="atFormComplexWrapper">
+      <div id="labelContainer">
+        <label>{{label}}</label>
+      </div>
+      <div id="insertPoint" class="ui form"></div>
+      <div id="errorContainer" class="errorContainer">
+        <p id="errorText"></p>
+      </div>
     </div>
   </template>
 </dom-module>
@@ -66,6 +68,17 @@
         notify: true,
         value: false,
         observer: 'disabledChanged'
+      },
+      /**
+       * Hides the element. When hidden nothing is displayed for the element
+       * @property hide
+       * @type Boolean
+       * @default false
+       */
+      hide: {
+        type: Boolean,
+        value: false,
+        observer: 'hideChanged'
       }
     },
     $meta: [{
@@ -80,24 +93,36 @@
     // ------------------------------------------------------------
     _unsupported_types: ["object", "array"],
     _isBatchUpdate: false,
+    hideChanged: function(newValue, oldValue) {
+      var wrapper = this.$.atFormComplexWrapper;
+      this.toggleClass('hidden', newValue, wrapper);
+    },
     ready: function() {},
     hideLabelChanged: function(newValue, oldValue) {
-      this.toggleClass("hide-label", newValue, this.$.labelContainer);
+      this.toggleClass("hidden", newValue, this.$.labelContainer);
     },
     schemaChanged: function(newValue, odlValue) {
-      var
-        self = this, // used in value-changed function closures
-        schemaHelpers = window.schemaHelpers,
-        fieldsContainer = this.$.insertPoint,
-        errorText = this.$.errorText,
-        properties = this.schema.properties,
-        propertyDefinition, // definition of a single property
-        defaultValue, // holds the default value for the element
-        regularValue, // temporary holds the value from the at-form-complex.value property
-        displayType, // type of the property; translates to a coresponding element
-        fieldContainer, // at-core-form class="field" wrapper for formElement
-        fieldElement // holds a reference to a newly created element
-      ;
+      if (Object.prototype.toString.call(newValue) === "[object String]") {
+        try {
+          newValue = JSON.parse(newValue);
+          this.schema = newValue;
+          return;
+        } catch (e) {
+          console.log(e);
+        }
+      }
+
+      var self = this; // used in value-changed function closures
+      var schemaHelpers = window.schemaHelpers;
+      var fieldsContainer = this.$.insertPoint;
+      var errorText = this.$.errorText;
+      var properties = newValue.properties;
+      var propertyDefinition; // definition of a single property
+      var defaultValue; // holds the default value for the element
+      var regularValue; // temporary holds the value from the at-form-complex.value property
+      var displayType; // type of the property; translates to a coresponding element
+      var fieldContainer; // at-core-form class="field" wrapper for formElement
+      var fieldElement; // holds a reference to a newly created element
 
       this.elementsToValidate = [];
 
@@ -132,7 +157,7 @@
           } else {
             // else set initial value from at-form-complex.value to fromElement
             if (displayType !== 'file' && displayType !== 'image' && displayType !== 'daterange') {
-              formElement.value = self.value[propertyName];
+              fieldElement.value = self.value[propertyName];
             }
           }
 
@@ -205,6 +230,16 @@
       var
         fieldsContainer = Polymer.dom(this.$.insertPoint),
         fieldElement;
+
+      if (Object.prototype.toString.call(newValue) === "[object String]") {
+        try {
+          newValue = JSON.parse(newValue);
+          this.value = newValue;
+          return;
+        } catch (e) {
+          console.log(e);
+        }
+      }
 
       this._isBatchUpdate = true;
       // *ij* it can happen that new value doesn't set new value for all elements
