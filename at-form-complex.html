@@ -102,7 +102,10 @@
       this.toggleClass("hidden", newValue, this.$.labelContainer);
     },
     schemaChanged: function(newValue, odlValue) {
-      if (Object.prototype.toString.call(newValue) === "[object String]") {
+      var self = this; // used in value-changed function closures
+      var schemaHelpers = window.schemaHelpers;
+
+      if (schemaHelpers.isString(newValue)) {
         try {
           newValue = JSON.parse(newValue);
           this.schema = newValue;
@@ -112,11 +115,18 @@
         }
       }
 
-      var self = this; // used in value-changed function closures
-      var schemaHelpers = window.schemaHelpers;
+      if (schemaHelpers.isString(self.value)) {
+        try {
+          var newData = JSON.parse(self.value);
+          self.value = newData;
+        } catch (e) {
+          console.log(e);
+        }
+      }
+
       var fieldsContainer = this.$.insertPoint;
       var errorText = this.$.errorText;
-      var properties = newValue.properties;
+      var properties = newValue.schema ? newValue.schema.properties : newValue.properties;
       var propertyDefinition; // definition of a single property
       var defaultValue; // holds the default value for the element
       var regularValue; // temporary holds the value from the at-form-complex.value property
@@ -227,9 +237,8 @@
     },
 
     valueChanged: function(newValue, oldValue) {
-      var
-        fieldsContainer = Polymer.dom(this.$.insertPoint),
-        fieldElement;
+      var fieldsContainer = Polymer.dom(this.$.insertPoint);
+      var fieldElement;
 
       if (Object.prototype.toString.call(newValue) === "[object String]") {
         try {
@@ -306,9 +315,9 @@
     },
 
     disabledChanged: function(newValue, oldValue) {
-      var fieldsContainer = this.$.insertPoint,
-        fieldElement,
-        properties = this.schema.properties;
+      var fieldsContainer = this.$.insertPoint;
+      var fieldElement;
+      var properties = this.schema.properties || this.schema.schema.properties;
 
       Object.keys(properties).forEach(function(propertyName) {
         fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + propertyName);
