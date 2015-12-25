@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <title>at-form-complex business rules demo</title>
+
+  <script src="../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../polymer/polymer.html">
+  <link rel="import" href="../layout/layout.html">
+  <link rel="import" href="../at-form-ruleset/at-form-ruleset.html">
+  <link rel="import" href="at-form-complex.html">
+  <style>
+    .my-body {
+      width: 90%;
+      margin-top: 5%;
+      margin-left: 5%;
+      margin-right: 5%;
+    }
+
+    .component {
+      width: 95%;
+      margin: 0 2%;
+    }
+  </style>
+</head>
+
+<body class="my-body">
+  <div class="vertical layout">
+    <div class="horizontal layout">
+      <div class="vertical layout">
+        <div>
+          <h3>This demo shows automatic business rules validation for at-form-complex</h3>
+        </div>
+        <div>
+          <p>This demo also demonstrates the updates to valid state</p>
+        </div>
+      </div>
+    </div>
+    <div class="horizontal layout">
+      <div class="flex component">
+        <div class="horizontal layout center-justified">
+          <p>at-form-complex field is currently: <b id="validStateText"></b>
+          </p>
+        </div>
+        <at-form-complex id="formComplex" label="at-form-complex automatic business rules validation"></at-form-complex>
+      </div>
+      <div class="flex component">
+        <at-form-ruleset id="ruleEdit"></at-form-ruleset>
+      </div>
+    </div>
+  </div>
+  <script>
+    window.addEventListener('WebComponentsReady', function(e) {
+      var jsonSchema = {
+        'properties': {
+          'textareademo': {
+            'title': 'Textarea demo',
+            'type': 'string',
+            'xtype': 'textarea'
+          },
+          'id': {
+            'description': 'The unique identifier for a product',
+            'type': 'number'
+          },
+          'name': {
+            'type': 'string',
+            'required': true
+          },
+          'city': {
+            'type': 'string',
+            'value': 'Default city name'
+          },
+          'active': {
+            'type': 'boolean',
+            'default': true
+          },
+          'activeTitle': {
+            'type': 'boolean',
+            'description': 'This is description for active title'
+          },
+          'activeToggle': {
+            "type": "boolean",
+            "xtype": "toggle",
+            "description": "This is description for active toggle"
+          },
+          'dropdownDemo': {
+            'title': 'Name',
+            'type': 'string',
+            'xtype': 'enum',
+            'xvaluelist': 'XML,JSON'
+          },
+          'codeMirrorDemo': {
+            "title": "Code Mirror",
+            "type": "string",
+            "xtype": "code"
+          }
+        },
+        'required': ['id', 'city']
+      };
+
+      var combinedSchema = {
+        schema: jsonSchema,
+        rules: [{
+          rule: {
+            conditions: {
+              kind: "all",
+              conditions: [{
+                name: "id",
+                operator: "equalTo",
+                compareTo: "text",
+                value: "50"
+              }, {
+                name: "name",
+                operator: "equalTo",
+                compareTo: "text",
+                value: "default city"
+              }]
+            },
+            actions: [{
+              actionName: "alert",
+              message: "Demo alert text!"
+            }, {
+              actionName: "updateField",
+              fieldName: "textareademo",
+              updateTo: "One does not simply ... "
+            }, {
+              actionName: "setFieldState",
+              fieldName: "active",
+              state: "disabled"
+            }, {
+              actionName: "copyFieldValue",
+              fieldName: "active",
+              copyTo: "activeTitle"
+            }]
+          }
+        }]
+      };
+
+      var formComplex = document.getElementById("formComplex");
+      formComplex.schema = combinedSchema;
+
+      formComplex.value = {
+        'id': 3213,
+        'city': 'Boston',
+        'name': 'This is sample name',
+        'active': true,
+        'activePera': false,
+        'dropdownDemo': 'XML'
+      };
+
+      function updateValidStateText() {
+        var validStateText = document.getElementById('validStateText');
+        validStateText.textContent = formComplex.valid ? 'valid' : 'invalid';
+      }
+
+      formComplex.addEventListener('valid-changed', function(event) {
+        updateValidStateText();
+      });
+
+      updateValidStateText();
+
+      var ruleEdit = document.getElementById('ruleEdit');
+      ruleEdit.ruleConfig = jsonSchema;
+      ruleEdit.value = combinedSchema.rules;
+
+      ruleEdit.addEventListener('value-changed', function(event){
+        var _combinedSchema  =  {
+          schema: jsonSchema,
+          rules: ruleEdit.value
+        }
+        formComplex.schema = _combinedSchema;
+      });
+    });
+  </script>
+</body>
+
+</html>

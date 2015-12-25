@@ -24,7 +24,7 @@
       <div id="labelContainer" class="label-container">
         <label>{{label}}</label>
         <template id="" is="dom-if" if="{{label}}">
-          <hr>          
+          <hr>
         </template>
       </div>
       <div id="insertPoint" class="ui form"></div>
@@ -95,7 +95,7 @@
     }],
     // Empty setter is here to prevent exceptions when valid is set from the outside
     // setting valid from the outside is not allowed
-    set valid(value) { },
+    set valid(value) {},
     elementsToValidate: [],
     _scopeCssViaAttr: true,
     // ------------------------------------------------------------
@@ -108,7 +108,9 @@
       var wrapper = this.$.atFormComplexWrapper;
       this.toggleClass('hidden', newValue, wrapper);
     },
-    ready: function() {},
+    ready: function() {
+      this._dataValidator = new DataValidator();
+    },
     hideLabelChanged: function(newValue, oldValue) {
       this.toggleClass("hidden", newValue, this.$.labelContainer);
     },
@@ -223,8 +225,8 @@
      not just update value. This approach seems reasonable for setFieldState action in at-form-rule-edit
      */
     updateFormElementValue: function(elementId, value) {
-      var fieldsContainer = this.$.insertPoint,
-        fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + elementId);
+      var fieldsContainer = this.$.insertPointl;
+      var fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + elementId);
 
       this.value[elementId] = value;
       if (schemaHelpers.valueNotReadOnly(fieldElement)) {
@@ -295,11 +297,38 @@
      * value is the new value to be set
      */
     _updateValueObject: function(property, value) {
-      this.value[property] = value;
-      this.validate();
-      this.fire('value-changed', {
-        value: this.value
-      });
+      // this if is a guard against infinite loop that can be caused by
+      // DataValidator.prototype.complexActionsAdapter.copyFieldValue
+      // at-rule-engine/script/rule-engine.js line 308
+      if (this.schema.rules) {
+        if (!this.businessRulesEvaluationInProgress) {
+          this.businessRulesEvaluationInProgress = true;
+          var complexUserValue = {};
+          schemaHelpers.copyProperties(Object.keys(this.value), [], this.value, complexUserValue);
+          complexUserValue[property] = value;
+          var complexBusinessValue = this._dataValidator.validateComplexValue(element, complexUserValue);
+          this.businessRulesEvaluationInProgress = false;
+
+          var complexUserValueJson = JSON.stringify(complexUserValue);
+          var complexBusinessValueJson = JSON.stringify(complexBusinessValue);
+          if (complexUserValueJson !== complexBusinessValueJson) {
+            // update form element's value
+            // CONTINUE HERE!
+            // trigger value-changed because of R4
+            this.fire('value-changed', {
+              value: this.value
+            });
+          }
+        } else {
+          return;
+        }
+      } else {
+        this.value[property] = value;
+        this.validate();
+        this.fire('value-changed', {
+          value: this.value
+        });
+      }
     },
 
     /*
