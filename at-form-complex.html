@@ -23,7 +23,9 @@
     <div id="atFormComplexWrapper">
       <div id="labelContainer" class="label-container">
         <label>{{label}}</label>
-        <hr>
+        <template id="" is="dom-if" if="{{label}}">
+          <hr>          
+        </template>
       </div>
       <div id="insertPoint" class="ui form"></div>
       <div id="errorContainer" class="errorContainer">
