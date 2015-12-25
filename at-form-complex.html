@@ -5,19 +5,25 @@
   <style>
     .errorContainer p {
       color: red;
-      border: 1px solid gray;
+      /*border: 1px solid gray;*/
       padding: 0 5px;
     }
 
     .hidden {
       display: none;
     }
+
+    .label-container > label {
+      font-size: 14px;
+      font-weight: bold;
+    }
   </style>
   <template>
     <at-core-theme></at-core-theme>
     <div id="atFormComplexWrapper">
-      <div id="labelContainer">
+      <div id="labelContainer" class="label-container">
         <label>{{label}}</label>
+        <hr>
       </div>
       <div id="insertPoint" class="ui form"></div>
       <div id="errorContainer" class="errorContainer">
@@ -85,6 +91,9 @@
       title: "Object",
       type: "object"
     }],
+    // Empty setter is here to prevent exceptions when valid is set from the outside
+    // setting valid from the outside is not allowed
+    set valid(value) { },
     elementsToValidate: [],
     _scopeCssViaAttr: true,
     // ------------------------------------------------------------
