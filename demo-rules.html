@@ -9,6 +9,7 @@
   <link rel="import" href="../polymer/polymer.html">
   <link rel="import" href="../layout/layout.html">
   <link rel="import" href="../at-form-ruleset/at-form-ruleset.html">
+  <link rel="import" href="../at-form-codemirror/at-form-codemirror.html">
   <link rel="import" href="at-form-complex.html">
   <style>
     .my-body {
@@ -21,6 +22,11 @@
     .component {
       width: 95%;
       margin: 0 2%;
+    }
+
+    .echo {
+      margin-top: 13px;
+      padding: 0 13px;
     }
   </style>
 </head>
@@ -48,6 +54,14 @@
       <div class="flex component">
         <at-form-ruleset id="ruleEdit"></at-form-ruleset>
       </div>
+    </div>
+    <div class="vertical layout echo">
+      <h4>at-form-complex value echo:</h4>
+      <p>
+        When values are changed here, should rules be applied? <br>
+        Because if they should the process becomes a lot more complicated.
+      </p>
+      <at-form-codemirror name="complexValueEcho" rows="15" cols="80"></at-form-codemirror>
     </div>
   </div>
   <script>
@@ -115,6 +129,11 @@
                 operator: "equalTo",
                 compareTo: "text",
                 value: "default city"
+              }, {
+                name: "textareademo",
+                operator: "equalTo",
+                compareTo: "text",
+                value: "sparta"
               }]
             },
             actions: [{
@@ -141,11 +160,12 @@
       formComplex.schema = combinedSchema;
 
       formComplex.value = {
+        'textareademo': 'This is original text area text',
         'id': 3213,
         'city': 'Boston',
         'name': 'This is sample name',
         'active': true,
-        'activePera': false,
+        'activeTitle': false,
         'dropdownDemo': 'XML'
       };
 
@@ -170,6 +190,21 @@
           rules: ruleEdit.value
         }
         formComplex.schema = _combinedSchema;
+      });
+
+      var complexValueEcho = document.getElementsByName('complexValueEcho')[0];
+      complexValueEcho.value = JSON.stringify(formComplex.value, null, 1);
+      formComplex.addEventListener('value-changed', function(event) {
+         complexValueEcho.value = JSON.stringify(formComplex.value, null, 1);
+      });
+
+      complexValueEcho.addEventListener('value-changed', function(event){
+        try {
+          var _complexValue = JSON.parse(complexValueEcho.value);
+          formComplex.value = _complexValue;
+        } catch (e) {
+          console.log(e);
+        }
       });
     });
   </script>

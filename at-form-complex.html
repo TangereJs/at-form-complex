@@ -225,7 +225,7 @@
      not just update value. This approach seems reasonable for setFieldState action in at-form-rule-edit
      */
     updateFormElementValue: function(elementId, value) {
-      var fieldsContainer = this.$.insertPointl;
+      var fieldsContainer = this.$.insertPoint;
       var fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + elementId);
 
       this.value[elementId] = value;
@@ -238,8 +238,8 @@
     },
 
     setElementState: function(elementId, state, value) {
-      var fieldsContainer = this.$.insertPoint,
-        fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + elementId);
+      var fieldsContainer = this.$.insertPoint;
+      var fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + elementId);
 
       if (fieldElement) {
         fieldElement[state] = value;
@@ -306,19 +306,38 @@
           var complexUserValue = {};
           schemaHelpers.copyProperties(Object.keys(this.value), [], this.value, complexUserValue);
           complexUserValue[property] = value;
-          var complexBusinessValue = this._dataValidator.validateComplexValue(element, complexUserValue);
-          this.businessRulesEvaluationInProgress = false;
+          var complexBusinessValue = this._dataValidator.validateComplexValue(complexUserValue, this.schema.rules, this);
+          var self = this;
 
           var complexUserValueJson = JSON.stringify(complexUserValue);
           var complexBusinessValueJson = JSON.stringify(complexBusinessValue);
           if (complexUserValueJson !== complexBusinessValueJson) {
-            // update form element's value
-            // CONTINUE HERE!
+            // update form element's value because of R3
+            var bv_propertyNames = Object.keys(complexBusinessValue);
+            bv_propertyNames.forEach(function (bv_propertyName, index) {
+              var cuvPropValue = complexUserValue[bv_propertyName];
+              var cbvPropValue = complexBusinessValue[bv_propertyName];
+              if (cuvPropValue !== cbvPropValue) {
+                self.value[bv_propertyName] = cbvPropValue;
+                self.updateFormElementValue(bv_propertyName, cbvPropValue);
+              } else {
+                self.value[bv_propertyName] = cuvPropValue;
+                // self.updateFormElementValue(bv_propertyName, cuvPropValue);
+              }
+            });
+
             // trigger value-changed because of R4
             this.fire('value-changed', {
               value: this.value
             });
+          } else {
+            this.value[property] = value;
+            this.validate();
+            this.fire('value-changed', {
+              value: this.value
+            });
           }
+          this.businessRulesEvaluationInProgress = false;
         } else {
           return;
         }
