@@ -27,7 +27,7 @@
           <hr>
         </template>
       </div>
-      <div id="insertPoint" class="ui form"></div>
+      <div id="insertPoint" class="ui form layout"></div>
       <div id="errorContainer" class="errorContainer">
         <p id="errorText"></p>
       </div>
@@ -87,6 +87,22 @@
         type: Boolean,
         value: false,
         observer: 'hideChanged'
+      },
+      /**
+       * layout <br>
+       * added as support for rendering rows in at-form-array <br>
+       * layout = horizontal lays out elements in a horizontal line <br>
+       * layout = vertical lays out elements in a single vertical column <br>
+       * @property layout
+       * @type String
+       * @default vertical
+       */
+      layout: {
+        type: String,
+        value: 'vertical',
+        observer: 'layoutChanged',
+        xtype: 'enum',
+        xvaluelist: 'horizontal,vertical'
       }
     },
     $meta: [{
@@ -314,7 +330,7 @@
           if (complexUserValueJson !== complexBusinessValueJson) {
             // update form element's value because of R3
             var bv_propertyNames = Object.keys(complexBusinessValue);
-            bv_propertyNames.forEach(function (bv_propertyName, index) {
+            bv_propertyNames.forEach(function(bv_propertyName, index) {
               var cuvPropValue = complexUserValue[bv_propertyName];
               var cbvPropValue = complexBusinessValue[bv_propertyName];
               if (cuvPropValue !== cbvPropValue) {
@@ -386,6 +402,50 @@
           } else {
             fieldElement.disabled = Boolean(properties[propertyName].disabled);
           }
+        }
+      });
+    },
+    /**
+     * layoutChanged <br/>
+     * switches classes for vertical and horizontal layout
+     */
+    layoutChanged: function (newValue, oldValue) {
+      var fieldsContainer = this.$.insertPoint;
+      if (newValue === 'horizontal') {
+        this.toggleClass('horizontal', true, fieldsContainer);
+        this.toggleClass('vertical', false, fieldsContainer);
+      } else if (newValue === 'vertical'){
+        this.toggleClass('horizontal', false, fieldsContainer);
+        this.toggleClass('vertical', true, fieldsContainer);
+      }
+    },
+    /**
+     * Hides the labels for all elements on the form-complex
+     */
+    hideLabelsForElements: function() {
+      this._iterateElements(function(element) {
+        element.hideLabel = true;
+      });
+    },
+    /**
+     * Shows the labels for all elements on the form-complex
+     */
+    showLabelsForElements: function() {
+      this._iterateElements(function(element) {
+        element.hideLabel = false;
+      });
+    },
+    /**
+     * A helper function for iterating over all elements on the form-complex
+     */
+    _iterateElements: function(callback) {
+      var fieldsContainer = this.$.insertPoint;
+      var properties = this.schema.properties || this.schema.schema.properties;
+
+      Object.keys(properties).forEach(function(propertyName) {
+        var fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + propertyName);
+        if (fieldElement) {
+          callback(fieldElement);
         }
       });
     }
