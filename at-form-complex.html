@@ -212,6 +212,10 @@
             self.elementsToValidate.push(fieldElement);
           }
 
+          // *ij* support for layout
+          // if layout === horizontal new elements have hidden labels
+          fieldElement.hideLabel = self.layout === 'horizontal';
+
           // append paper element to its container
           Polymer.dom(fieldContainer).appendChild(fieldElement);
           // add container to as child to insertPoint
