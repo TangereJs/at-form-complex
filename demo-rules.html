@@ -58,8 +58,8 @@
     <div class="vertical layout echo">
       <h4>at-form-complex value echo:</h4>
       <p>
-        When values are changed here, should rules be applied? <br>
-        Because if they should the process becomes a lot more complicated.
+        When values are changed here, should rules be applied?
+        <br> Because if they should the process becomes a lot more complicated.
       </p>
       <at-form-codemirror name="complexValueEcho" rows="15" cols="80"></at-form-codemirror>
     </div>
@@ -113,99 +113,91 @@
         'required': ['id', 'city']
       };
 
-      var combinedSchema = {
-        schema: jsonSchema,
-        rules: [{
-          rule: {
-            conditions: {
-              kind: "all",
-              conditions: [{
-                name: "id",
-                operator: "equalTo",
-                compareTo: "text",
-                value: "50"
-              }, {
-                name: "name",
-                operator: "equalTo",
-                compareTo: "text",
-                value: "default city"
-              }, {
-                name: "textareademo",
-                operator: "equalTo",
-                compareTo: "text",
-                value: "sparta"
-              }]
-            },
-            actions: [{
-              actionName: "alert",
-              message: "Demo alert text!"
+      jsonSchema.rules = [{
+        rule: {
+          conditions: {
+            kind: "all",
+            conditions: [{
+              name: "id",
+              operator: "equalTo",
+              compareTo: "text",
+              value: "50"
             }, {
-              actionName: "updateField",
-              fieldName: "textareademo",
-              updateTo: "One does not simply ... "
+              name: "name",
+              operator: "equalTo",
+              compareTo: "text",
+              value: "default city"
             }, {
-              actionName: "setFieldState",
-              fieldName: "active",
-              state: "disabled"
-            }, {
-              actionName: "copyFieldValue",
-              fieldName: "active",
-              copyTo: "activeTitle"
+              name: "textareademo",
+              operator: "equalTo",
+              compareTo: "text",
+              value: "sparta"
             }]
-          }
-        }]
-      };
+          },
+          actions: [{
+            actionName: "alert",
+            message: "Demo alert text!"
+          }, {
+            actionName: "updateField",
+            fieldName: "textareademo",
+            updateTo: "One does not simply ... "
+          }, {
+            actionName: "setFieldState",
+            fieldName: "active",
+            state: "disabled"
+          }, {
+            actionName: "copyFieldValue",
+            fieldName: "active",
+            copyTo: "activeTitle"
+          }]
+        }
+      }];
 
-      var formComplex = document.getElementById("formComplex");
-      formComplex.schema = combinedSchema;
+    var formComplex = document.getElementById("formComplex");
+    formComplex.schema = jsonSchema;
 
-      formComplex.value = {
-        'textareademo': 'This is original text area text',
-        'id': 3213,
-        'city': 'Boston',
-        'name': 'This is sample name',
-        'active': true,
-        'activeTitle': false,
-        'dropdownDemo': 'XML'
-      };
+    formComplex.value = {
+      'textareademo': 'This is original text area text',
+      'id': 3213,
+      'city': 'Boston',
+      'name': 'This is sample name',
+      'active': true,
+      'activeTitle': false,
+      'dropdownDemo': 'XML'
+    };
 
-      function updateValidStateText() {
-        var validStateText = document.getElementById('validStateText');
-        validStateText.textContent = formComplex.valid ? 'valid' : 'invalid';
-      }
+    function updateValidStateText() {
+      var validStateText = document.getElementById('validStateText');
+      validStateText.textContent = formComplex.valid ? 'valid' : 'invalid';
+    }
 
-      formComplex.addEventListener('valid-changed', function(event) {
-        updateValidStateText();
-      });
-
+    formComplex.addEventListener('valid-changed', function(event) {
       updateValidStateText();
+    });
 
-      var ruleEdit = document.getElementById('ruleEdit');
-      ruleEdit.ruleConfig = jsonSchema;
-      ruleEdit.value = combinedSchema.rules;
+    updateValidStateText();
 
-      ruleEdit.addEventListener('value-changed', function(event){
-        var _combinedSchema  =  {
-          schema: jsonSchema,
-          rules: ruleEdit.value
-        }
-        formComplex.schema = _combinedSchema;
-      });
+    var ruleEdit = document.getElementById('ruleEdit');
+    ruleEdit.ruleConfig = jsonSchema;
+    ruleEdit.value = jsonSchema.rules;
 
-      var complexValueEcho = document.getElementsByName('complexValueEcho')[0];
+    ruleEdit.addEventListener('value-changed', function(event) {
+      jsonSchema.rules = ruleEdit.value;
+      formComplex.schema = jsonSchema;
+    });
+
+    var complexValueEcho = document.getElementsByName('complexValueEcho')[0]; complexValueEcho.value = JSON.stringify(formComplex.value, null, 1); formComplex.addEventListener('value-changed', function(event) {
       complexValueEcho.value = JSON.stringify(formComplex.value, null, 1);
-      formComplex.addEventListener('value-changed', function(event) {
-         complexValueEcho.value = JSON.stringify(formComplex.value, null, 1);
-      });
+    });
 
-      complexValueEcho.addEventListener('value-changed', function(event){
-        try {
-          var _complexValue = JSON.parse(complexValueEcho.value);
-          formComplex.value = _complexValue;
-        } catch (e) {
-          console.log(e);
-        }
-      });
+    complexValueEcho.addEventListener('value-changed', function(event) {
+      try {
+        var _complexValue = JSON.parse(complexValueEcho.value);
+        formComplex.value = _complexValue;
+      } catch (e) {
+        console.log(e);
+      }
+    });
     });
   </script>
 </body>

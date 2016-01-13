@@ -155,7 +155,7 @@
 
       var fieldsContainer = this.$.insertPoint;
       var errorText = this.$.errorText;
-      var properties = newValue.schema ? newValue.schema.properties : newValue.properties;
+      var properties = newValue.properties;
       var propertyDefinition; // definition of a single property
       var defaultValue; // holds the default value for the element
       var regularValue; // temporary holds the value from the at-form-complex.value property
@@ -396,7 +396,7 @@
     disabledChanged: function(newValue, oldValue) {
       var fieldsContainer = this.$.insertPoint;
       var fieldElement;
-      var properties = this.schema.properties || this.schema.schema.properties;
+      var properties = this.schema.properties;
 
       Object.keys(properties).forEach(function(propertyName) {
         fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + propertyName);
@@ -444,7 +444,7 @@
      */
     _iterateElements: function(callback) {
       var fieldsContainer = this.$.insertPoint;
-      var properties = this.schema.properties || this.schema.schema.properties;
+      var properties = this.schema.properties;
 
       Object.keys(properties).forEach(function(propertyName) {
         var fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + propertyName);
