@@ -352,7 +352,7 @@
             });
           } else {
             this.value[property] = value;
-            this.validate();
+            this._updateValidState();
             this.fire('value-changed', {
               value: this.value
             });
@@ -363,11 +363,24 @@
         }
       } else {
         this.value[property] = value;
-        this.validate();
+        this._updateValidState();
         this.fire('value-changed', {
           value: this.value
         });
       }
+    },
+
+    _updateValidState: function () {
+      var isValid = true;
+
+      this.elementsToValidate.forEach(function(element) {
+        if (isFunction(element.validate)) {
+          var elementValid = element.validate(true);
+          isValid = isValid && elementValid;
+        }
+      });
+
+      this._setValid(isValid);
     },
 
     /*
