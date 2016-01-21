@@ -127,6 +127,17 @@
     ready: function() {
       this._dataValidator = new DataValidator();
     },
+    focus: function () {
+      if (this.schema && this.schema.properties) {
+        var properties = this.schema.properties;
+        var propertyNames = properties ? Object.keys(properties) : [];
+        if (propertyNames.length > 0){
+          var propName = propertyNames[0];
+          var element = this.getElement(propName);
+          if (element) { element.focus(); }
+        }
+      }
+    },
     hideLabelChanged: function(newValue, oldValue) {
       this.toggleClass("hidden", newValue, this.$.labelContainer);
     },
@@ -268,6 +279,13 @@
         console.debug('Field with id: ' + elementId + ' doesn\'t exist in form.');
       }
     },
+
+    getElement:function (elementId) {
+      var fieldsContainer = this.$.insertPoint;
+      var selector = '#' + elementId;
+      var fieldElement = Polymer.dom(fieldsContainer).querySelector(selector);
+      return fieldElement;
+    }
 
     valueChanged: function(newValue, oldValue) {
       var fieldsContainer = Polymer.dom(this.$.insertPoint);
