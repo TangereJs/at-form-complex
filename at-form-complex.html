@@ -17,10 +17,15 @@
       font-size: 14px;
       font-weight: bold;
     }
+
+    #insertPoint .field-container {
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
   </style>
   <template>
     <at-core-theme></at-core-theme>
-    <div id="atFormComplexWrapper">
+    <div id="atFormComplexWrapper" class="vertical layout flex-12">
       <div id="labelContainer" class="label-container">
         <label>{{label}}</label>
         <template id="" is="dom-if" if="{{label}}">
@@ -196,7 +201,8 @@
           }
 
           fieldContainer = document.createElement('div');
-          Polymer.dom(fieldContainer).classList.add('field');
+          Polymer.dom(fieldContainer).classList.add('field-container');
+          Polymer.dom(fieldContainer).classList.add('flex');
 
           fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
 
