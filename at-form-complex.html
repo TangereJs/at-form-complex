@@ -227,9 +227,7 @@
           });
 
           Polymer.dom(fieldElement).setAttribute('id', propertyName);
-          if (fieldElement.required) {
-            self.elementsToValidate.push(fieldElement);
-          }
+          self.elementsToValidate.push(fieldElement);
 
           // *ij* support for layout
           // if layout === horizontal new elements have hidden labels
@@ -402,7 +400,7 @@
       var properties = this.schema.properties;
       var propertyNames = Object.keys(properties);
       var self = this;
-      
+
       propertyNames.forEach(function(properyName) {
         var element = self.getElement(properyName);
         var elementValid = element.valid;
