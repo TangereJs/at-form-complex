@@ -213,11 +213,9 @@
             // add initial value of the formElement to the at-form-complex.value
             self.value[propertyName] = fieldElement.value;
           } else {
-            // else set initial value from at-form-complex.value to fromElement
-            if (displayType !== 'file' && displayType !== 'image' && displayType !== 'daterange') {
-              fieldElement.value = self.value[propertyName];
-            }
+            fieldElement.value = self.value[propertyName];
           }
+          fieldElement.clearUIValidState();
 
           fieldElement.addEventListener('value-changed', function(event) {
             // event.stopPropagation();
@@ -331,6 +329,8 @@
 
       this._isBatchUpdate = false;
 
+      this.validate();
+
       this.fire('value-changed', {
         value: this.value
       });
@@ -392,6 +392,19 @@
           value: this.value
         });
       }
+    },
+
+    clearUIValidState: function () {
+      var properties = this.schema.properties;
+      var propertyNames = Object.keys(properties);
+      var self = this;
+
+      propertyNames.forEach(function(properyName) {
+        var element = self.getElement(properyName);
+        if (element) {
+          element.clearUIValidState();
+        }
+      });
     },
 
     _updateValidState: function() {
