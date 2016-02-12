@@ -1,40 +1,33 @@
-<link rel="import" href="../layout/layout.html">
+<link rel="import" href="../at-theme/at-theme.html">
 <link rel="import" href="../at-core-form/schema-helpers-import.html">
 
 <dom-module id="at-form-complex">
-  <style>
-    .errorContainer p {
-      color: red;
-      /*border: 1px solid gray;*/
-      padding: 0 5px;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .label-container > label {
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    #insertPoint .field-container {
-      margin-right: 5px;
-      margin-bottom: 5px;
-    }
-  </style>
   <template>
-    <at-core-theme></at-core-theme>
-    <div id="atFormComplexWrapper" class="vertical layout flex-12">
-      <div id="labelContainer" class="label-container">
-        <label>{{label}}</label>
+    <style include="at-form-common"></style>
+    <style>
+      :host * {
+        box-sizing: border-box;
+      }
+
+      :host {
+        @apply(--at-form-host);
+      }
+
+      #insertPoint .field-container {
+        margin-right: 5px;
+        margin-bottom: 5px;
+      }
+    </style>
+    <div id="atContainer" class="at-container">
+      <div id="flexContainer" class="vertical layout flex-12">
+        <label id="label">{{label}}</label>
         <template id="" is="dom-if" if="{{label}}">
           <hr>
         </template>
-      </div>
-      <div id="insertPoint" class="ui form layout"></div>
-      <div id="errorContainer" class="errorContainer">
-        <p id="errorText"></p>
+        <div id="contentContainer" class="at-content-container">
+          <div id="insertPoint" class="ui form layout"></div>
+        </div>
+        <div id="hint"></div>
       </div>
     </div>
   </template>
@@ -118,7 +111,6 @@
     // setting valid from the outside is not allowed
     set valid(value) {},
     elementsToValidate: [],
-    _scopeCssViaAttr: true,
     // ------------------------------------------------------------
     // unsupported types
     // list type or xtype of the element that should not be supported by at-form-complex
@@ -126,7 +118,7 @@
     _unsupported_types: ["object", "array"],
     _isBatchUpdate: false,
     hideChanged: function(newValue, oldValue) {
-      var wrapper = this.$.atFormComplexWrapper;
+      var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
     },
     ready: function() {
@@ -146,7 +138,7 @@
       }
     },
     hideLabelChanged: function(newValue, oldValue) {
-      this.toggleClass("hidden", newValue, this.$.labelContainer);
+      this.toggleClass("hidden", newValue, this.$.label);
     },
     schemaChanged: function(newValue, odlValue) {
       var self = this; // used in value-changed function closures
@@ -172,7 +164,7 @@
       }
 
       var fieldsContainer = this.$.insertPoint;
-      var errorText = this.$.errorText;
+      var hint = this.$.hint;
       var properties = newValue.properties;
       var propertyDefinition; // definition of a single property
       var defaultValue; // holds the default value for the element
@@ -185,9 +177,9 @@
 
       Polymer.dom(fieldsContainer).innerHTML = '';
 
-      Polymer.dom(errorText).innerHTML = '';
+      Polymer.dom(hint).innerHTML = '';
       if (schemaHelpers.isNull(properties)) {
-        Polymer.dom(errorText).innerHTML = "Invalid schema. Schema doesn't contain a 'properties' property";
+        Polymer.dom(hint).innerHTML = "Invalid schema. Schema doesn't contain a 'properties' property";
       } else {
         Object.keys(properties).forEach(function(propertyName) {
           propertyDefinition = properties[propertyName];
@@ -218,7 +210,7 @@
           fieldElement.clearUIValidState();
 
           fieldElement.addEventListener('value-changed', function(event) {
-            // event.stopPropagation();
+            event.stopPropagation();
             if (!self._isBatchUpdate) {
               self._updateValueObject(event.target.id, event.detail.value);
             }
@@ -239,6 +231,8 @@
           // udpate the disabled status
           self.disabledChanged(self.disabled, self.disabled);
         });
+
+        this._updateValidState();
       }
     },
 
@@ -394,7 +388,7 @@
       }
     },
 
-    clearUIValidState: function () {
+    clearUIValidState: function() {
       var properties = this.schema.properties;
       var propertyNames = Object.keys(properties);
       var self = this;
@@ -447,6 +441,9 @@
     },
 
     disabledChanged: function(newValue, oldValue) {
+      var atContainer = this.$.atContainer;
+      this.toggleClass('disabled', newValue, atContainer);
+
       var fieldsContainer = this.$.insertPoint;
       var fieldElement;
       var properties = this.schema.properties;
