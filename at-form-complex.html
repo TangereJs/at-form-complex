@@ -12,23 +12,16 @@
       :host {
         @apply(--at-form-host);
       }
-
-      #insertPoint .field-container {
-        margin-right: 5px;
-        margin-bottom: 5px;
-      }
     </style>
     <div id="atContainer" class="at-container">
-      <div id="flexContainer" class="vertical layout flex-12">
-        <label id="label">{{label}}</label>
-        <template id="" is="dom-if" if="{{label}}">
-          <hr>
-        </template>
-        <div id="contentContainer" class="at-content-container">
-          <div id="insertPoint" class="layout"></div>
-        </div>
-        <div id="hint"></div>
+      <label id="label">{{label}}</label>
+      <template id="" is="dom-if" if="{{label}}">
+        <hr>
+      </template>
+      <div id="contentContainer" class="at-content-container">
+        <div id="insertPoint" class=""></div>
       </div>
+      <div id="hint"></div>
     </div>
   </template>
 </dom-module>
@@ -87,15 +80,15 @@
         observer: 'hideChanged'
       },
       /**
-       * layout <br>
+       * _layout <br>
        * added as support for rendering rows in at-form-array <br>
-       * layout = horizontal lays out elements in a horizontal line <br>
-       * layout = vertical lays out elements in a single vertical column <br>
-       * @property layout
+       * _layout = horizontal lays out elements in a horizontal line <br>
+       * _layout = vertical lays out elements in a single vertical column <br>
+       * @property _layout
        * @type String
        * @default vertical
        */
-      layout: {
+      _layout: {
         type: String,
         value: 'vertical',
         observer: 'layoutChanged',
@@ -194,9 +187,15 @@
             self.value[propertyName] = defaultValue;
           }
 
+          // handle xgridcols
+          var xgridcols = displayType === "section" ? 12 : 6;
+          if (schemaHelpers.notNullOrEmpty(propertyDefinition.xgridcols)) {
+            xgridcols = parseInt(propertyDefinition.xgridcols);
+          }
+
           fieldContainer = document.createElement('div');
-          Polymer.dom(fieldContainer).classList.add('field-container');
-          Polymer.dom(fieldContainer).classList.add('flex');
+          var gridColsCssName = "col-" + xgridcols;
+          Polymer.dom(fieldContainer).classList.add(gridColsCssName);
 
           fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
 
@@ -221,7 +220,7 @@
 
           // *ij* support for layout
           // if layout === horizontal new elements have hidden labels
-          fieldElement.hideLabel = self.layout === 'horizontal';
+          fieldElement.hideLabel = self._layout === 'horizontal';
 
           // append paper element to its container
           Polymer.dom(fieldContainer).appendChild(fieldElement);
