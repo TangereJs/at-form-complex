@@ -15,8 +15,8 @@
     </style>
     <div id="atContainer" class="at-container">
       <label id="label">{{label}}</label>
-      <template id="" is="dom-if" if="{{label}}">
-        <hr>
+      <template is="dom-if" if="{{label}}">
+        <hr id="labelHr">
       </template>
       <div id="contentContainer" class="at-content-container">
         <div id="insertPoint" class=""></div>
@@ -113,9 +113,18 @@
     hideChanged: function(newValue, oldValue) {
       var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
+
+      this.elementsToValidate.forEach(function (element) {
+        element.hide = true;
+      });
+
+      if (this._isReady) {
+        this._updateValidState();
+      }
     },
     ready: function() {
       this._dataValidator = new DataValidator();
+      this._isReady = true;
     },
     focus: function() {
       if (this.schema && this.schema.properties) {
@@ -132,6 +141,8 @@
     },
     hideLabelChanged: function(newValue, oldValue) {
       this.toggleClass("hidden", newValue, this.$.label);
+      var labelHr = this.$$('#labelHr');
+      this.toggleClass("hidden", newValue, labelHr);
     },
     schemaChanged: function(newValue, odlValue) {
       var self = this; // used in value-changed function closures
@@ -222,15 +233,19 @@
           // if layout === horizontal new elements have hidden labels
           fieldElement.hideLabel = self._layout === 'horizontal';
 
+          if (self.hide) {
+            fieldElement.hide = true;
+          }
+
           // append paper element to its container
           Polymer.dom(fieldContainer).appendChild(fieldElement);
           // add container to as child to insertPoint
           Polymer.dom(fieldsContainer).appendChild(fieldContainer);
 
           // udpate the disabled status
-          self.disabledChanged(self.disabled, self.disabled);
         });
 
+        this.disabledChanged(this.disabled, undefined);
         this._updateValidState();
       }
     },
@@ -403,14 +418,8 @@
     _updateValidState: function() {
       var isValid = true;
 
-      var properties = this.schema.properties;
-      var propertyNames = Object.keys(properties);
-      var self = this;
-
-      propertyNames.forEach(function(properyName) {
-        var element = self.getElement(properyName);
-        var elementValid = element.valid;
-        isValid = isValid && elementValid;
+      this.elementsToValidate.forEach(function(element) {
+        isValid = isValid && element.valid;
       });
 
       this._setValid(isValid);
@@ -457,6 +466,10 @@
           }
         }
       });
+
+      if (this._isReady) {
+        this._updateValidState();
+      }
     },
     /**
      * layoutChanged <br/>
