@@ -38,7 +38,7 @@
     </div>
     <div class="horizontal layout center-justified">
       <p>at-form-complex field is currently: <b id="validStateText"></b>
-      </p>
+      <br><a onclick="validate();">validate</a></p>
     </div>
   </div>
   <script>
@@ -53,7 +53,8 @@
           },
           'id': {
             'description': 'The unique identifier for a product',
-            'type': 'number'
+            'type': 'number',
+            'xgridcols': 3
           },
           'name': {
             'type': 'string',
@@ -92,7 +93,7 @@
       formComplex.value = {
         'id': 3213,
         'city': 'Boston',
-        'name': 'This is sample name',
+        'name': '',
         'active': true,
         'activePera': false,
         'dropdownDemo': 'XML'
@@ -101,6 +102,13 @@
       function updateValidStateText() {
         var validStateText = document.getElementById('validStateText');
         validStateText.textContent = formComplex.valid ? 'valid' : 'invalid';
+      }
+        
+      window.validate = function() {
+        var vEl = document.getElementById('formComplex');
+        var result = vEl.validate();
+        alert("element is valid: " + result);
+        return false;
       }
 
       formComplex.addEventListener('valid-changed', function (event) {
