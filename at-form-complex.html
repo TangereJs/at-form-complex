@@ -12,6 +12,11 @@
       :host {
         @apply(--at-form-host);
       }
+
+      .form-element {
+        padding: 0 15px;
+        min-height: 84px;
+      }
     </style>
     <div id="atContainer" class="at-container">
       <label id="label">{{label}}</label>
@@ -19,7 +24,7 @@
         <hr id="labelHr">
       </template>
       <div id="contentContainer" class="at-content-container">
-        <div id="insertPoint" class=""></div>
+        <div id="insertPoint"></div>
       </div>
       <div id="hint"></div>
     </div>
@@ -176,6 +181,7 @@
       var displayType; // type of the property; translates to a coresponding element
       var fieldContainer; // at-core-form class="field" wrapper for formElement
       var fieldElement; // holds a reference to a newly created element
+      var usexgridCols = false;
 
       this.elementsToValidate = [];
 
@@ -185,6 +191,14 @@
       if (schemaHelpers.isNull(properties)) {
         Polymer.dom(hint).innerHTML = "Invalid schema. Schema doesn't contain a 'properties' property";
       } else {
+        var propertiesJsonStr = JSON.stringify(properties);
+        usexgridCols = propertiesJsonStr.indexOf("xgridcols") !== -1;
+        var insertPoint = this.$.insertPoint;
+        if (!usexgridCols) {
+          Polymer.dom(insertPoint).classList.add('layout');
+        } else {
+          Polymer.dom(insertPoint).classList.remove('layout');
+        }
         Object.keys(properties).forEach(function(propertyName) {
           propertyDefinition = properties[propertyName];
 
@@ -205,7 +219,11 @@
           }
 
           fieldContainer = document.createElement('div');
+          Polymer.dom(fieldContainer).classList.add('form-element');
           var gridColsCssName = "col-" + xgridcols;
+          if (!usexgridCols) {
+            gridColsCssName = "flex";
+          }
           Polymer.dom(fieldContainer).classList.add(gridColsCssName);
 
           fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
