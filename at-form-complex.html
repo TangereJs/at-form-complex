@@ -1,3 +1,5 @@
+<link rel="import" href="../tangere/Tangere.html">
+<link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-theme/at-theme.html">
 <link rel="import" href="../at-core-form/schema-helpers-import.html">
 
@@ -13,14 +15,14 @@
         @apply(--at-form-host);
       }
 
-      .form-element {        
+      .form-element {
         min-height: 84px;
       }
-      
+
       .horizontal .form-element {
         min-height: 64px;
       }
-      
+
     </style>
     <div id="atContainer" class="at-container">
       <label id="label">{{label}}</label>
@@ -39,6 +41,7 @@
   "use strict";
   Polymer({
     is: 'at-form-complex',
+    behaviors: [ Tangere.behaviors.i18n ],
     properties: {
       label: {
         type: String,
