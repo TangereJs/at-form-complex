@@ -45,7 +45,8 @@
     properties: {
       label: {
         type: String,
-        value: ''
+        value: '',
+        title: 'Label'
       },
       hideLabel: {
         type: Boolean,
@@ -66,7 +67,8 @@
         value: function() {
           return {};
         },
-        observer: 'valueChanged'
+        observer: 'valueChanged',
+        title: 'Value'
       },
       valid: {
         type: Boolean,
@@ -78,7 +80,8 @@
         type: Boolean,
         notify: true,
         value: false,
-        observer: 'disabledChanged'
+        observer: 'disabledChanged',
+        title: 'Field value can not be changed'
       },
       /**
        * Hides the element. When hidden nothing is displayed for the element
@@ -89,7 +92,8 @@
       hide: {
         type: Boolean,
         value: false,
-        observer: 'hideChanged'
+        observer: 'hideChanged',
+        title: 'Field is invisible'
       },
       /**
        * _layout <br>

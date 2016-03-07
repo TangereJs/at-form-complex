@@ -4,5 +4,6 @@
   "dependencies": {
     "at-theme": "TangereJs/at-theme#0.8-preview",
     "at-core-form": "TangereJs/at-core-theme#0.8-preview"
-  }
+  },
+  "version": "0.0.1.5"
 }
