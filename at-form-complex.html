@@ -132,7 +132,7 @@
       this.toggleClass('hidden', newValue, wrapper);
 
       this.elementsToValidate.forEach(function (element) {
-        element.hide = true;
+        element.hide = newValue;
       });
 
       if (this._isReady) {
