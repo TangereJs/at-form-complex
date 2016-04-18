@@ -140,7 +140,7 @@
       }
     },
     ready: function() {
-      this._dataValidator = new DataValidator();
+      this._dataValidator = new DataRulesExecutor();
       this._isReady = true;
     },
     focus: function() {
@@ -385,10 +385,22 @@
       if (this.schema.rules) {
         if (!this.businessRulesEvaluationInProgress) {
           this.businessRulesEvaluationInProgress = true;
+          var propNames = Object.keys(this.value);
+
           var complexUserValue = {};
-          schemaHelpers.copyProperties(Object.keys(this.value), [], this.value, complexUserValue);
+          schemaHelpers.copyProperties(propNames, [], this.value, complexUserValue);
           complexUserValue[property] = value;
-          var complexBusinessValue = this._dataValidator.validateComplexValue(complexUserValue, this.schema.rules, this);
+
+          var complexBusinessValue = {};
+          schemaHelpers.copyProperties(propNames, [], complexUserValue, complexBusinessValue);
+
+          var schemaPropNames = Object.keys(this.schema.properties);
+          var activeSchema = {
+            properties: {}
+          };
+          schemaHelpers.copyProperties(schemaPropNames, [], this.schema.properties, activeSchema);
+
+          var complexBusinessValue = this._dataValidator.execute(activeSchema, complexBusinessValue, this.schema.rules);
           var self = this;
 
           var complexUserValueJson = JSON.stringify(complexUserValue);
