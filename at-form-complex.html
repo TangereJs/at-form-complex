@@ -140,7 +140,7 @@
       }
     },
     ready: function() {
-      this._dataValidator = new DataRulesExecutor();
+      this._dataValidator = RulesEvaluator();
       this._isReady = true;
     },
     focus: function() {
@@ -379,6 +379,20 @@
      * value is the new value to be set
      */
     _updateValueObject: function(property, value) {
+
+      function deepCopy(source, destination) {
+        var srcPropNames = Object.keys(source);
+        srcPropNames.forEach(function (srcPropName, index) {
+          var srcProp = source[srcPropName];
+          if (schemaHelpers.isObject(srcProp)) {
+            destination[srcPropName] = {};
+            deepCopy(srcProp, destination[srcPropName]);
+          } else {
+            destination[srcPropName] = source[srcPropName];
+          }
+        });
+      }
+
       // this if is a guard against infinite loop that can be caused by
       // DataValidator.prototype.complexActionsAdapter.copyFieldValue
       // at-rule-engine/script/rule-engine.js line 308
@@ -394,14 +408,32 @@
           var complexBusinessValue = {};
           schemaHelpers.copyProperties(propNames, [], complexUserValue, complexBusinessValue);
 
-          var schemaPropNames = Object.keys(this.schema.properties);
-          var activeSchema = {
-            properties: {}
-          };
-          schemaHelpers.copyProperties(schemaPropNames, [], this.schema.properties, activeSchema);
+          var activeSchema = false;
+          if (!this._activeSchema) {
+            activeSchema = this._activeSchema = {
+              properties: {}
+            };
+            deepCopy(this.schema.properties, activeSchema.properties);
+          } else {
+            activeSchema = this._activeSchema;
+          }
 
-          var complexBusinessValue = this._dataValidator.execute(activeSchema, complexBusinessValue, this.schema.rules);
+          this._dataValidator.evaluate(activeSchema, complexBusinessValue, this.schema.rules);
           var self = this;
+
+          var schemaJson = JSON.stringify(this.schema.properties);
+          var activeSchemaJson = JSON.stringify(activeSchema.properties);
+          if (activeSchemaJson !== schemaJson) {
+            // for each property update disaabled/hidden/required and errorMessage
+            var activePropNames = Object.keys(activeSchema.properties);
+            activePropNames.forEach(function (activePropName, index) {
+              var activePropDef = activeSchema.properties[activePropName];
+              self.setElementState(activePropName, 'disabled', activePropDef.disabled);
+              self.setElementState(activePropName, 'required', activePropDef.required);
+              self.setElementState(activePropName, 'hide', activePropDef.hide);
+              self.setElementState(activePropName, 'errorMessage', activePropDef.errorMessage);
+            });
+          }
 
           var complexUserValueJson = JSON.stringify(complexUserValue);
           var complexBusinessValueJson = JSON.stringify(complexBusinessValue);
