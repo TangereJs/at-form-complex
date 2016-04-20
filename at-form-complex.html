@@ -1,6 +1,7 @@
 <link rel="import" href="../tangere/tangere.html">
-<link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-theme/at-theme.html">
+<link rel="import" href="../at-i18n/at-i18n-behavior.html">
+<link rel="import" href="../at-form-behaviors/at-form-behaviors-rules-evaluation.html">
 <link rel="import" href="../at-core-form/schema-helpers-import.html">
 
 <dom-module id="at-form-complex">
@@ -41,7 +42,7 @@
   "use strict";
   Polymer({
     is: 'at-form-complex',
-    behaviors: [ Tangere.behaviors.i18n ],
+    behaviors: [ Tangere.behaviors.i18n, Tangere.behaviors.RulesEvaluation ],
     properties: {
       label: {
         type: String,
@@ -399,70 +400,72 @@
       if (this.schema.rules) {
         if (!this.businessRulesEvaluationInProgress) {
           this.businessRulesEvaluationInProgress = true;
-          var propNames = Object.keys(this.value);
-
-          var complexUserValue = {};
-          schemaHelpers.copyProperties(propNames, [], this.value, complexUserValue);
-          complexUserValue[property] = value;
-
-          var complexBusinessValue = {};
-          schemaHelpers.copyProperties(propNames, [], complexUserValue, complexBusinessValue);
-
-          var activeSchema = false;
-          if (!this._activeSchema) {
-            activeSchema = this._activeSchema = {
-              properties: {}
-            };
-            deepCopy(this.schema.properties, activeSchema.properties);
-          } else {
-            activeSchema = this._activeSchema;
-          }
-
-          this._dataValidator.evaluate(activeSchema, complexBusinessValue, this.schema.rules);
-          var self = this;
-
-          var schemaJson = JSON.stringify(this.schema.properties);
-          var activeSchemaJson = JSON.stringify(activeSchema.properties);
-          if (activeSchemaJson !== schemaJson) {
-            // for each property update disaabled/hidden/required and errorMessage
-            var activePropNames = Object.keys(activeSchema.properties);
-            activePropNames.forEach(function (activePropName, index) {
-              var activePropDef = activeSchema.properties[activePropName];
-              self.setElementState(activePropName, 'disabled', activePropDef.disabled);
-              self.setElementState(activePropName, 'required', activePropDef.required);
-              self.setElementState(activePropName, 'hide', activePropDef.hide);
-              self.setElementState(activePropName, 'errorMessage', activePropDef.errorMessage);
-            });
-          }
-
-          var complexUserValueJson = JSON.stringify(complexUserValue);
-          var complexBusinessValueJson = JSON.stringify(complexBusinessValue);
-          if (complexUserValueJson !== complexBusinessValueJson) {
-            // update form element's value because of R3
-            var bv_propertyNames = Object.keys(complexBusinessValue);
-            bv_propertyNames.forEach(function(bv_propertyName, index) {
-              var cuvPropValue = complexUserValue[bv_propertyName];
-              var cbvPropValue = complexBusinessValue[bv_propertyName];
-              if (cuvPropValue !== cbvPropValue) {
-                self.value[bv_propertyName] = cbvPropValue;
-                self.updateFormElementValue(bv_propertyName, cbvPropValue);
-              } else {
-                self.value[bv_propertyName] = cuvPropValue;
-                self.updateFormElementValue(bv_propertyName, cuvPropValue);
-              }
-            });
-
-            // trigger value-changed because of R4
-            this.fire('value-changed', {
-              value: this.value
-            });
-          } else {
-            this.value[property] = value;
-            this._updateValidState();
-            this.fire('value-changed', {
-              value: this.value
-            });
-          }
+          this._evaluateRules(property, value);
+          // var propNames = Object.keys(this.value);
+          //
+          // var complexUserValue = {};
+          // schemaHelpers.copyProperties(propNames, [], this.value, complexUserValue);
+          // complexUserValue[property] = value;
+          //
+          //
+          // var complexBusinessValue = {};
+          // schemaHelpers.copyProperties(propNames, [], complexUserValue, complexBusinessValue);
+          //
+          // var activeSchema = false;
+          // if (!this._activeSchema) {
+          //   activeSchema = this._activeSchema = {
+          //     properties: {}
+          //   };
+          //   deepCopy(this.schema.properties, activeSchema.properties);
+          // } else {
+          //   activeSchema = this._activeSchema;
+          // }
+          //
+          // this._dataValidator.evaluate(activeSchema, complexBusinessValue, this.schema.rules);
+          // var self = this;
+          //
+          // var schemaJson = JSON.stringify(this.schema.properties);
+          // var activeSchemaJson = JSON.stringify(activeSchema.properties);
+          // if (activeSchemaJson !== schemaJson) {
+          //   // for each property update disaabled/hidden/required and errorMessage
+          //   var activePropNames = Object.keys(activeSchema.properties);
+          //   activePropNames.forEach(function (activePropName, index) {
+          //     var activePropDef = activeSchema.properties[activePropName];
+          //     self.setElementState(activePropName, 'disabled', activePropDef.disabled);
+          //     self.setElementState(activePropName, 'required', activePropDef.required);
+          //     self.setElementState(activePropName, 'hide', activePropDef.hide);
+          //     self.setElementState(activePropName, 'errorMessage', activePropDef.errorMessage);
+          //   });
+          // }
+          //
+          // var complexUserValueJson = JSON.stringify(complexUserValue);
+          // var complexBusinessValueJson = JSON.stringify(complexBusinessValue);
+          // if (complexUserValueJson !== complexBusinessValueJson) {
+          //   // update form element's value because of R3
+          //   var bv_propertyNames = Object.keys(complexBusinessValue);
+          //   bv_propertyNames.forEach(function(bv_propertyName, index) {
+          //     var cuvPropValue = complexUserValue[bv_propertyName];
+          //     var cbvPropValue = complexBusinessValue[bv_propertyName];
+          //     if (cuvPropValue !== cbvPropValue) {
+          //       self.value[bv_propertyName] = cbvPropValue;
+          //       self.updateFormElementValue(bv_propertyName, cbvPropValue);
+          //     } else {
+          //       self.value[bv_propertyName] = cuvPropValue;
+          //       self.updateFormElementValue(bv_propertyName, cuvPropValue);
+          //     }
+          //   });
+          //
+          //   // trigger value-changed because of R4
+          //   this.fire('value-changed', {
+          //     value: this.value
+          //   });
+          // } else {
+          //   this.value[property] = value;
+          //   this._updateValidState();
+          //   this.fire('value-changed', {
+          //     value: this.value
+          //   });
+          // }
           this.businessRulesEvaluationInProgress = false;
         } else {
           return;
