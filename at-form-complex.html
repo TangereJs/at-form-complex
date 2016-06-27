@@ -2,7 +2,8 @@
 <link rel="import" href="../at-theme/at-theme.html">
 <link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-form-behaviors/at-form-behaviors-rules-evaluation.html">
-<link rel="import" href="../at-core-form/schema-helpers-import.html">
+<link rel="import" href="../at-elements/at-designer-elements.html">
+<link rel="import" href="../at-core-schema/at-core-schema.html">
 
 <dom-module id="at-form-complex">
   <template>
@@ -396,7 +397,8 @@
       // this if is a guard against infinite loop that can be caused by
       // DataValidator.prototype.complexActionsAdapter.copyFieldValue
       // at-rule-engine/script/rule-engine.js line 308
-      if (this.schema.rules) {
+      var rules = this.schema.rules;
+      if (rules && rules.length > 0) {
         if (!this.businessRulesEvaluationInProgress) {
           this.businessRulesEvaluationInProgress = true;
           this._evaluateRules(property, value);
