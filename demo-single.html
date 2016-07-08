@@ -6,7 +6,6 @@
   <title>at-form-complex demo</title>
 
   <script src="../webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="../polymer/polymer.html">
   <link rel="import" href="at-form-complex.html">
   <link rel="import" href="../layout/layout.html">
   <style>
@@ -103,7 +102,7 @@
         var validStateText = document.getElementById('validStateText');
         validStateText.textContent = formComplex.valid ? 'valid' : 'invalid';
       }
-        
+
       window.validate = function() {
         var vEl = document.getElementById('formComplex');
         var result = vEl.validate();
