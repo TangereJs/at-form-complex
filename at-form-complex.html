@@ -3,6 +3,7 @@
 <link rel="import" href="../at-theme/at-theme.html">
 <link rel="import" href="../at-elements/at-designer-elements.html">
 <link rel="import" href="../at-core-schema/at-core-schema.html">
+<link rel="import" href="../at-form-behaviors/at-form-behaviors-rules-evaluation.html">
 
 <dom-module id="at-form-complex">
   <template>
@@ -42,19 +43,40 @@
   "use strict";
   Polymer({
     is: 'at-form-complex',
-    behaviors: [ Tangere.behaviors.i18n ],
+    behaviors: [ Tangere.behaviors.i18n, Tangere.behaviors.RulesEvaluation ],
     properties: {
+      /**
+       * Textual label for the element
+       * @property label
+       * @type String
+       * @default ''
+       */
       label: {
         type: String,
         value: '',
         title: 'Label'
       },
+      /**
+       * When true hides the label for the element
+       * @property hideLabel
+       * @type Boolean
+       * @default false
+       */
       hideLabel: {
         type: Boolean,
         value: false,
-        observer: 'hideLabelChanged',
+        observer: '_hideLabelChanged',
         title: 'Do not show the label'
       },
+      /**
+       * Specification of elements that should appear on the element.<br/>
+       * Provide either an object or string.<br/>
+       * List property definitions inside properties object.<br/>
+       *
+       * @property schema
+       * @type Object | Stirng
+       * @default { properties: {} }
+       */
       schema: {
         type: Object,
         value: function() {
@@ -62,27 +84,35 @@
             properties: {}
           };
         },
-        observer: 'schemaChanged'
+        observer: '_schemaChanged',
+        title: 'Schema'
       },
+      /**
+       * Holds values of the elements on the element
+       *
+       * @property value
+       * @type Object | String
+       * @default {}
+       */
       value: {
         type: Object,
         value: function() {
           return {};
         },
-        observer: 'valueChanged',
+        observer: '_valueChanged',
         title: 'Value'
       },
-      valid: {
-        type: Boolean,
-        notify: true,
-        value: true,
-        readOnly: true
-      },
+      /**
+       * When true disables all elements on the form
+       * @property disabled
+       * @type Boolean
+       * @default false
+       */
       disabled: {
         type: Boolean,
         notify: true,
         value: false,
-        observer: 'disabledChanged',
+        observer: '_disabledChanged',
         title: 'Field value can not be changed'
       },
       /**
@@ -94,8 +124,20 @@
       hide: {
         type: Boolean,
         value: false,
-        observer: 'hideChanged',
+        observer: '_hideChanged',
         title: 'Field is invisible'
+      },
+      /**
+       * Valid state of the element. When all elements on the form are valid form is valid. If at least one element on the form is invalid, form is invalid
+       * @property valid
+       * @type Boolean
+       * @default true
+       */
+      valid: {
+        type: Boolean,
+        notify: true,
+        value: true,
+        readOnly: true
       },
       /**
        * _layout <br>
@@ -109,7 +151,7 @@
       _layout: {
         type: String,
         value: 'vertical',
-        observer: 'layoutChanged',
+        observer: '_layoutChanged',
         xtype: 'enum',
         xvaluelist: 'horizontal,vertical'
       }
@@ -128,41 +170,14 @@
     // ------------------------------------------------------------
     _unsupported_types: ["object", "array"],
     _isBatchUpdate: false,
-    hideChanged: function(newValue, oldValue) {
-      var wrapper = this.$.atContainer;
-      this.toggleClass('hidden', newValue, wrapper);
 
-      this.elementsToValidate.forEach(function (element) {
-        element.hide = newValue;
-      });
-
-      if (this._isReady) {
-        this._updateValidState();
-      }
-    },
-    ready: function() {
-      this._dataValidator = new DataValidator();
-      this._isReady = true;
-    },
-    focus: function() {
-      if (this.schema && this.schema.properties) {
-        var properties = this.schema.properties;
-        var propertyNames = properties ? Object.keys(properties) : [];
-        if (propertyNames.length > 0) {
-          var propName = propertyNames[0];
-          var element = this.getElement(propName);
-          if (element) {
-            element.focus();
-          }
-        }
-      }
-    },
-    hideLabelChanged: function(newValue, oldValue) {
+    _hideLabelChanged: function(newValue, oldValue) {
       this.toggleClass("hidden", newValue, this.$.label);
       var labelHr = this.$$('#labelHr');
       this.toggleClass("hidden", newValue, labelHr);
     },
-    schemaChanged: function(newValue, odlValue) {
+
+    _schemaChanged: function(newValue, odlValue) {
       var self = this; // used in value-changed function closures
       var schemaHelpers = window.schemaHelpers;
 
@@ -276,7 +291,7 @@
           // udpate the disabled status
         });
 
-        this.disabledChanged(this.disabled, undefined);
+        this._disabledChanged(this.disabled, undefined);
         this._updateValidState();
       }
     },
@@ -330,7 +345,7 @@
       return fieldElement;
     },
 
-    valueChanged: function(newValue, oldValue) {
+    _valueChanged: function(newValue, oldValue) {
       var fieldsContainer = Polymer.dom(this.$.insertPoint);
       var fieldElement;
 
@@ -433,6 +448,60 @@
       }
     },
 
+    _disabledChanged: function(newValue, oldValue) {
+      var atContainer = this.$.atContainer;
+      this.toggleClass('disabled', newValue, atContainer);
+
+      var fieldsContainer = this.$.insertPoint;
+      var fieldElement;
+      var properties = this.schema.properties;
+
+      Object.keys(properties).forEach(function(propertyName) {
+        fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + propertyName);
+        if (fieldElement) {
+          if (newValue) {
+            fieldElement.disabled = newValue;
+          } else {
+            fieldElement.disabled = Boolean(properties[propertyName].disabled);
+          }
+        }
+      });
+
+      if (this._isReady) {
+        this._updateValidState();
+      }
+    },
+
+    _hideChanged: function(newValue, oldValue) {
+      var wrapper = this.$.atContainer;
+      this.toggleClass('hidden', newValue, wrapper);
+
+      this.elementsToValidate.forEach(function (element) {
+        element.hide = newValue;
+      });
+
+      if (this._isReady) {
+        this._updateValidState();
+      }
+    },
+    ready: function() {
+      this._dataValidator = new DataValidator();
+      this._isReady = true;
+    },
+    focus: function() {
+      if (this.schema && this.schema.properties) {
+        var properties = this.schema.properties;
+        var propertyNames = properties ? Object.keys(properties) : [];
+        if (propertyNames.length > 0) {
+          var propName = propertyNames[0];
+          var element = this.getElement(propName);
+          if (element) {
+            element.focus();
+          }
+        }
+      }
+    },
+
     clearUIValidState: function() {
       var properties = this.schema.properties;
       var propertyNames = Object.keys(properties);
@@ -479,34 +548,11 @@
       return isValid;
     },
 
-    disabledChanged: function(newValue, oldValue) {
-      var atContainer = this.$.atContainer;
-      this.toggleClass('disabled', newValue, atContainer);
-
-      var fieldsContainer = this.$.insertPoint;
-      var fieldElement;
-      var properties = this.schema.properties;
-
-      Object.keys(properties).forEach(function(propertyName) {
-        fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + propertyName);
-        if (fieldElement) {
-          if (newValue) {
-            fieldElement.disabled = newValue;
-          } else {
-            fieldElement.disabled = Boolean(properties[propertyName].disabled);
-          }
-        }
-      });
-
-      if (this._isReady) {
-        this._updateValidState();
-      }
-    },
     /**
-     * layoutChanged <br/>
+     * _layoutChanged <br/>
      * switches classes for vertical and horizontal layout
      */
-    layoutChanged: function(newValue, oldValue) {
+    _layoutChanged: function(newValue, oldValue) {
       var fieldsContainer = this.$.insertPoint;
       if (newValue === 'horizontal') {
         this.toggleClass('horizontal', true, fieldsContainer);
