@@ -163,13 +163,6 @@
     // Empty setter is here to prevent exceptions when valid is set from the outside
     // setting valid from the outside is not allowed
     set valid(value) {},
-    elementsToValidate: [],
-    // ------------------------------------------------------------
-    // unsupported types
-    // list type or xtype of the element that should not be supported by at-form-complex
-    // ------------------------------------------------------------
-    _unsupported_types: ["object", "array"],
-    _isBatchUpdate: false,
 
     _hideLabelChanged: function(newValue, oldValue) {
       this.toggleClass("hidden", newValue, this.$.label);
@@ -178,75 +171,103 @@
     },
 
     _schemaChanged: function(newValue, odlValue) {
-      var self = this; // used in value-changed function closures
-      var schemaHelpers = window.schemaHelpers;
+      var _sh = window.schemaHelpers;
 
-      if (schemaHelpers.isString(newValue)) {
+      if (_sh.isString(newValue)) {
+        /*
+          if newValue for schema is given as json string, parse it and assign it to this.schema
+          if newValue is a valid json string this.schema will trigger _schemaChanged again so we return to prevent schema changes being applied twice
+          if newValue is an invalid json string just return. Whatever the previous schema was that remains visible to the user
+        */
         try {
           newValue = JSON.parse(newValue);
           this.schema = newValue;
-          return;
         } catch (e) {
           console.log(e);
         }
+        return;
       }
 
-      if (schemaHelpers.isString(self.value)) {
-        try {
-          var newData = JSON.parse(self.value);
-          self.value = newData;
-        } catch (e) {
-          console.log(e);
-        }
+      var hint = this.$.hint;
+      var previousHintValue = Polymer.dom(hint).innerHTML;
+      // check if newValue is valid schema object
+      // if its invalid whatever the previous schema was that remains visible to the user
+      if (!_sh.isObject(newValue) || !_sh.isObject(newValue.properties)) {
+        Polymer.dom(hint).innerHTML = "Invalid schema. Schema doesn't contain a 'properties' property";
+        return;
+      } else {
+        Polymer.dom(hint).innerHTML = previousHintValue;
+      }
+
+      // if value is set before schema, this._internalData is already updated
+      // if schema is set first this._internalData is undefined so its initialized to empty object
+      if (!this._internalData) {
+        this._internalData = {};
+      }
+
+      var self = this;
+
+      // calculating valid state for the form is faster if we cache references to each element on the form
+      // its even faster if we exclude elements that do not have valid property
+      self._elementsToValidate = [];
+
+      if (!_sh.isArray(self._unsupported_types)) {
+        // ------------------------------------------------------------
+        // unsupported types
+        // list type or xtype of the element that should not be supported by at-form-complex
+        // ------------------------------------------------------------
+        self._unsupported_types = ["object", "array"];
       }
 
       var fieldsContainer = this.$.insertPoint;
-      var hint = this.$.hint;
-      var properties = newValue.properties;
+
+      // clear the previous html content in the container
+      // we do not use Polymer.dom(fieldsContainer).innerHTML = "" because innerHTML invokes browser's html parser which is more expensive than removing nodes
+      while (Polymer.dom(fieldsContainer).firstChild) {
+        Polymer.dom(fieldsContainer).removeChild(Polymer.dom(fieldsContainer).firstChild);
+      }
+
+
+      var fieldsFragment = document.createDocumentFragment();
+      var divPrototype = document.createElement('div');
+      var propertyNames = Object.keys(newValue.properties);
+
       var propertyDefinition; // definition of a single property
       var defaultValue; // holds the default value for the element
-      var regularValue; // temporary holds the value from the at-form-complex.value property
+      var containsProperty; // temporary holds the value from the at-form-complex.value property
       var displayType; // type of the property; translates to a coresponding element
-      var fieldContainer; // at-core-form class="field" wrapper for formElement
+      var fieldContainer; // at-form-complex class="field" wrapper for formElement
       var fieldElement; // holds a reference to a newly created element
       var usexgridCols = false;
 
-      this.elementsToValidate = [];
-
-      Polymer.dom(fieldsContainer).innerHTML = '';
-
-      Polymer.dom(hint).innerHTML = '';
-      if (schemaHelpers.isNull(properties)) {
-        Polymer.dom(hint).innerHTML = "Invalid schema. Schema doesn't contain a 'properties' property";
+      // FIXME: why usexgridCols exists? what is its purpose?
+      var propertiesJsonStr = JSON.stringify(newValue.properties);
+      usexgridCols = propertiesJsonStr.indexOf("xgridcols") !== -1;
+      var insertPoint = this.$.insertPoint;
+      if (!usexgridCols) {
+        Polymer.dom(insertPoint).classList.add('layout');
       } else {
-        var propertiesJsonStr = JSON.stringify(properties);
-        usexgridCols = propertiesJsonStr.indexOf("xgridcols") !== -1;
-        var insertPoint = this.$.insertPoint;
-        if (!usexgridCols) {
-          Polymer.dom(insertPoint).classList.add('layout');
-        } else {
-          Polymer.dom(insertPoint).classList.remove('layout');
-        }
-        Object.keys(properties).forEach(function(propertyName) {
-          propertyDefinition = properties[propertyName];
+        Polymer.dom(insertPoint).classList.remove('layout');
+      }
 
-          displayType = schemaHelpers.getDisplayType(propertyDefinition, self._unsupported_types);
-          // figure out the default value
+        propertyNames.forEach(function(propertyName) {
+          propertyDefinition = newValue.properties[propertyName];
+
+          // handle the default value
           defaultValue = propertyDefinition.default;
-          regularValue = self.value[propertyName];
-          // if defaultValue exists but regular value doesn't (this.value is not set)
-          if (schemaHelpers.notNullOrEmpty(defaultValue) && schemaHelpers.isNullOrEmpty(regularValue)) {
-            // add defaultValue to the this.value object
-            self.value[propertyName] = defaultValue;
+          containsProperty = self._internalData.hasOwnProperty(propertyName);
+          // if default value is defined and _internalData[propertyName] value is undefiend put default value into self._internalData
+          if (defaultValue !== undefined && !containsProperty) {
+            self._internalData[propertyName] = defaultValue;
           }
 
           // handle xgridcols
           var xgridcols = displayType === "section" ? 12 : 6;
-          if (schemaHelpers.notNullOrEmpty(propertyDefinition.xgridcols)) {
+          if (_sh.isNumber(propertyDefinition.xgridcols)) {
             xgridcols = parseInt(propertyDefinition.xgridcols);
           }
 
-          fieldContainer = document.createElement('div');
+          fieldContainer = divPrototype.cloneNode(true);
           Polymer.dom(fieldContainer).classList.add('form-element');
           var gridColsCssName = "col-" + xgridcols;
           if (!usexgridCols) {
@@ -254,52 +275,79 @@
           }
           Polymer.dom(fieldContainer).classList.add(gridColsCssName);
 
+          displayType = schemaHelpers.getDisplayType(propertyDefinition, self._unsupported_types);
           fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
 
-          if (schemaHelpers.isNullOrEmpty(self.value[propertyName])) {
-            // at-form-complex.value doesn't contain an entry for the current property
-            // add initial value of the formElement to the at-form-complex.value
-            self.value[propertyName] = fieldElement.value;
+          if (!self._internalData.hasOwnProperty(propertyName)) {
+            // at-form-complex._internalData doesn't contain an entry for the current property
+            // add initial value of the formElement to the at-form-complex.data
+            self._internalData[propertyName] = fieldElement.value;
           } else {
-            fieldElement.value = self.value[propertyName];
+            // else set initial value from at-form-complex.data to fromElement
+            fieldElement.value = self._internalData[propertyName];
           }
-          fieldElement.clearUIValidState();
+
+          if (_sh.isFunction(fieldElement.clearUIValidState)) {
+            // at-form-section doesn't have clearUIValidState function nor does it need one
+            fieldElement.clearUIValidState();
+          }
 
           fieldElement.addEventListener('value-changed', function(event) {
             event.stopPropagation();
-            if (!self._isBatchUpdate) {
-              self._updateValueObject(event.target.id, event.detail.value);
+            
+            var id = event.target.id;
+            var newValue = event.detail.value;
+            var currentValue = self._internalData[id];
+            if (!_sh.areEqual(currentValue, newValue)) {
+              self._updateValueObject(id, newValue);
             }
           });
 
           Polymer.dom(fieldElement).setAttribute('id', propertyName);
-          self.elementsToValidate.push(fieldElement);
+          self._elementsToValidate.push(fieldElement);
 
           // *ij* support for layout
           // if layout === horizontal new elements have hidden labels
           fieldElement.hideLabel = self._layout === 'horizontal';
 
-          if (self.hide) {
-            fieldElement.hide = true;
-          }
+          // if at-form-complex is initially hidden, element should be hidden as well
+          fieldElement.hide = self.hide || _sh.parseBool(propertyDefinition.hide);
+
+          // if at-form-complex is initially disabled, element should be disabled as well
+          fieldElement.disabled = self.disabled || _sh.parseBool(propertyDefinition.disabled);
 
           // append paper element to its container
           Polymer.dom(fieldContainer).appendChild(fieldElement);
           // add container to as child to insertPoint
-          Polymer.dom(fieldsContainer).appendChild(fieldContainer);
-
-          // udpate the disabled status
+          Polymer.dom(fieldsFragment).appendChild(fieldContainer);
         });
 
-        this._disabledChanged(this.disabled, undefined);
+        // if data was set first there is a chance that some properties form this._internalData are missing in this.data
+        // this.data must be updated with missing properties
+        var internalDataKeys = Object.keys(this._internalData);
+        internalDataKeys.forEach(function (key, index) {
+          // self.value[key] === undefined means that the key is missing from self.value
+          if (!self.value.hasOwnProperty(key)) {
+            self.value[key] = self._internalData[key];
+          }
+        });
+
+        // add div class="clearfix"
+        var clearfixDiv = divPrototype.cloneNode(true);
+        Polymer.dom(clearfixDiv).classList.add('clearfix');
+        Polymer.dom(fieldsFragment).appendChild(clearfixDiv);
+
+        Polymer.dom(fieldsContainer).appendChild(fieldsFragment);
+
+        // if any element is required in schema its valid state is updated after creation
+        // at-form-complex needs to reflect that state
         this._updateValidState();
-      }
     },
 
     /* *ij*
      OK. Imperative data binding doesn't work in polymer anymore.
      It may happen in the future but not in near future.
-     Using at-core-form.data[field] = 'newValue' doesn't work. Its not possible to bind to at-core-form.data[field] to update field value automatically
+     Using at-form-complex.data[field] = 'newValue' doesn't work. Its not possible to bind to at-form-complex.data[field] to update field value automatically
      Explained in https://github.com/Polymer/polymer/issues/1778 and https://github.com/Polymer/polymer/issues/1796
 
      So, to solve this shortcoming a updateFormElementValue function is introduced
@@ -314,28 +362,28 @@
      not just update value. This approach seems reasonable for setFieldState action in at-form-rule-edit
      */
     updateFormElementValue: function(elementId, value) {
-      var fieldsContainer = this.$.insertPoint;
-      var fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + elementId);
+      var fieldElement = this.getElement(elementId);
+      if (!fieldElement) {
+        return;
+      }
 
       this.value[elementId] = value;
-      if (schemaHelpers.valueNotReadOnly(fieldElement)) {
-        fieldElement.value = value;
-      } else {
-        // if not log the debug message
-        console.debug('Field with id: ' + elementId + ' doesn\'t exist in form.');
+      fieldElement.value = value;
+
+      // *ij* polymer js doesn't call valueChanged if value is of type array or object
+      // we check for this situation and call valueChanged by hand
+      if (schemaHelpers.isObject(fieldElement.value) || schemaHelpers.isArray(fieldElement.value)) {
+        fieldElement.valueChanged(value, undefined);
       }
     },
 
     setElementState: function(elementId, state, value) {
-      var fieldsContainer = this.$.insertPoint;
-      var fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + elementId);
-
-      if (fieldElement) {
-        fieldElement[state] = value;
-      } else {
-        // if not log the debug message
-        console.debug('Field with id: ' + elementId + ' doesn\'t exist in form.');
+      var element = this.getElement(elementId);
+      if (!element) {
+        return;
       }
+
+      element[state] = value;
     },
 
     getElement: function(elementId) {
@@ -346,45 +394,78 @@
     },
 
     _valueChanged: function(newValue, oldValue) {
-      var fieldsContainer = Polymer.dom(this.$.insertPoint);
-      var fieldElement;
+      var _sh = window.schemaHelpers;
 
-      if (Object.prototype.toString.call(newValue) === "[object String]") {
+      if (_sh.isString(newValue)) {
+        /*
+          if newValue for data is given as json string, parse it and assign it to this.data
+          if newValue is a valid json string this.data will trigger _dataChanged again so we return to prevent data changes being applied twice
+          if newValue is an invalid json string just return. Whatever the previous data was that remains visible to the user
+        */
         try {
           newValue = JSON.parse(newValue);
           this.value = newValue;
-          return;
         } catch (e) {
           console.log(e);
         }
+        return;
       }
 
-      this._isBatchUpdate = true;
-      // *ij* it can happen that new value doesn't set new value for all elements
-      // values for elements that are not set should be preserved
-      if (schemaHelpers.isObject(oldValue)) {
-        Object.keys(oldValue).forEach(function(propertyName) {
-          if (!newValue.hasOwnProperty(propertyName)) {
-            newValue[propertyName] = oldValue[propertyName];
-          }
+      // if new value is not an object, ignore the value and return
+      if (!_sh.isObject(newValue)) {
+        console.log('at-form-complex expects objects as new value, but got ' + _sh.formatJson(newValue) + ' instead');
+        return;
+      }
+
+      // initalize _internalData object; this objects holds last valid data set to at-core-form
+      if (!this._internalData) {
+        this._internalData = {};
+      }
+      var _internalData = this._internalData;
+
+      // update _internalData with keys from newValue
+      var newValueKeys = Object.keys(newValue);
+      newValueKeys.forEach(function (key, index) {
+        _internalData[key] = newValue[key];
+      });
+
+      if (!_sh.isObject(this.schema) || !_sh.isObject(this.schema.properties) || Object.keys(this.schema.properties).length === 0) {
+        // when schema is not set data-changed event should still be fired so that behavior is the same as when schema is set
+        this.fire('value-changed', {
+          value: this.value
         });
+        // this means that schema is not set and at-form-complex is not initialized; return
+        return;
       }
 
-      if (schemaHelpers.isObject(newValue)) {
-        Object.keys(newValue).forEach(function(propertyName) {
-          fieldElement = fieldsContainer.querySelector('#' + propertyName);
-          if (schemaHelpers.valueNotReadOnly(fieldElement)) {
-            fieldElement.value = newValue[propertyName];
-          }
-        });
-      } else {
-        console.log('at-form-complex expects objects as new value, but got ' + schemaHelpers.formatJson(newValue) + ' instead');
-      }
+      // at this point this._internalData contains updated values for each element on the form because
+      // 1) if schema was set first, this._internalData was already populated with initial values for each element,
+      //    and entries from newValue are merged into this._internalData
+      // 2) if value was set first, properties from this._internalData may be missing in this.value so they need to be copied over
+      //    but this is done in _schemaChanged
 
-      this._isBatchUpdate = false;
+      var fieldsContainer = Polymer.dom(this.$.insertPoint);
+      var fieldElement;
+
+      var self = this;
+      // use newValueKeys here because only keys from newValue are the ones changing
+      newValueKeys.forEach(function(propertyName) {
+        fieldElement = self.getElement(propertyName);
+        if (fieldElement) {
+          fieldElement.value = newValue[propertyName];
+        }
+      });
+
+      // newValue can contain only a subset of properties on the form
+      // value in value-changed should contain all properties so we need to copy over missing properties from _internalData
+      var internalDataKeys = Object.keys(this._internalData);
+      internalDataKeys.forEach(function (key, index) {
+        if (!self.value.hasOwnProperty(key)) {
+          self.value[key] = self._internalData[key];
+        }
+      });
 
       this._updateValidState();
-
       this.fire('value-changed', {
         value: this.value
       });
@@ -440,6 +521,7 @@
           return;
         }
       } else {
+        this._internalData[property] = value;
         this.value[property] = value;
         this._updateValidState();
         this.fire('value-changed', {
@@ -455,15 +537,14 @@
       var fieldsContainer = this.$.insertPoint;
       var fieldElement;
       var properties = this.schema.properties;
+      var propertyNames = properties ? Object.keys(properties) : [];
+      var parsedValue = schemaHelpers.parseBool(newValue);
+      var self = this;
 
-      Object.keys(properties).forEach(function(propertyName) {
-        fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + propertyName);
+      propertyNames.forEach(function(propertyName) {
+        fieldElement = self.getElement(propertyName);
         if (fieldElement) {
-          if (newValue) {
-            fieldElement.disabled = newValue;
-          } else {
-            fieldElement.disabled = Boolean(properties[propertyName].disabled);
-          }
+          fieldElement.disabled = parsedValue || schemaHelpers.parseBool(properties[propertyName].disabled);
         }
       });
 
@@ -476,7 +557,7 @@
       var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
 
-      this.elementsToValidate.forEach(function (element) {
+      this._elementsToValidate.forEach(function (element) {
         element.hide = newValue;
       });
 
@@ -518,7 +599,7 @@
     _updateValidState: function() {
       var isValid = true;
 
-      this.elementsToValidate.forEach(function(element) {
+      this._elementsToValidate.forEach(function(element) {
         isValid = isValid && element.valid;
       });
 
@@ -536,7 +617,7 @@
       }
       var isValid = true;
 
-      this.elementsToValidate.forEach(function(element) {
+      this._elementsToValidate.forEach(function(element) {
         if (isFunction(element.validate)) {
           var elementValid = element.validate();
           isValid = isValid && elementValid;
