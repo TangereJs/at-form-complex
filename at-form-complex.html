@@ -294,7 +294,7 @@
 
           fieldElement.addEventListener('value-changed', function(event) {
             event.stopPropagation();
-            
+
             var id = event.target.id;
             var newValue = event.detail.value;
             var currentValue = self._internalData[id];
@@ -431,9 +431,7 @@
 
       if (!_sh.isObject(this.schema) || !_sh.isObject(this.schema.properties) || Object.keys(this.schema.properties).length === 0) {
         // when schema is not set data-changed event should still be fired so that behavior is the same as when schema is set
-        this.fire('value-changed', {
-          value: this.value
-        });
+        this._fireValueChangedEvent(this.value);
         // this means that schema is not set and at-form-complex is not initialized; return
         return;
       }
@@ -466,9 +464,7 @@
       });
 
       this._updateValidState();
-      this.fire('value-changed', {
-        value: this.value
-      });
+      this._fireValueChangedEvent(this.value);
     },
     /*
      * This function is called on value-changed event for each element on the form
@@ -506,15 +502,11 @@
             });
 
             // trigger value-changed because of R4
-            this.fire('value-changed', {
-              value: this.value
-            });
+            this._fireValueChangedEvent(this.value);
           } else {
             this.value[property] = value;
             this._updateValidState();
-            this.fire('value-changed', {
-              value: this.value
-            });
+            this._fireValueChangedEvent(this.value);
           }
           this.businessRulesEvaluationInProgress = false;
         } else {
@@ -524,10 +516,16 @@
         this._internalData[property] = value;
         this.value[property] = value;
         this._updateValidState();
-        this.fire('value-changed', {
-          value: this.value
-        });
+        this._fireValueChangedEvent(this.value);
       }
+    },
+
+    _fireValueChangedEvent: function (value) {
+      this.fire('value-changed', {
+        value: value
+      }, {
+        bubbles: false
+      });
     },
 
     _disabledChanged: function(newValue, oldValue) {
