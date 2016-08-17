@@ -290,6 +290,8 @@
           if (_sh.isFunction(fieldElement.clearUIValidState)) {
             // at-form-section doesn't have clearUIValidState function nor does it need one
             fieldElement.clearUIValidState();
+          } else if (_sh.isFunction(fieldElement._clearUIValidState)) {
+            fieldElement._clearUIValidState();
           }
 
           fieldElement.addEventListener('value-changed', function(event) {
@@ -373,7 +375,11 @@
       // *ij* polymer js doesn't call valueChanged if value is of type array or object
       // we check for this situation and call valueChanged by hand
       if (schemaHelpers.isObject(fieldElement.value) || schemaHelpers.isArray(fieldElement.value)) {
-        fieldElement.valueChanged(value, undefined);
+        if (fieldElement.valueChanged) {
+          fieldElement.valueChanged(value, undefined);
+        } else if (fieldElement._valueChanged) {
+          fieldElement._valueChanged(value, undefined);
+        }
       }
     },
 
@@ -581,15 +587,17 @@
       }
     },
 
-    clearUIValidState: function() {
+    _clearUIValidState: function() {
       var properties = this.schema.properties;
       var propertyNames = Object.keys(properties);
       var self = this;
 
       propertyNames.forEach(function(properyName) {
         var element = self.getElement(properyName);
-        if (element) {
+        if (element && element.clearUIValidState) {
           element.clearUIValidState();
+        } else if (element && element._clearUIValidState) {
+          element._clearUIValidState();
         }
       });
     },
