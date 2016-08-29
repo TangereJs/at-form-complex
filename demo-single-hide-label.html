@@ -90,20 +90,22 @@
         'dropdownDemo': 'XML'
       };
 
-      function updateValidStateText() {
+      function updateValidStateText(isValid) {
         var validStateText = document.getElementById('validStateText');
-        validStateText.textContent = formComplex.valid ? 'valid' : 'invalid';
+        validStateText.textContent = isValid ? 'valid' : 'invalid';
       }
 
       formComplex.addEventListener('valid-changed', function (event) {
-        updateValidStateText();
+        // valid is no longer a property in at-form-complex so valid-changed event is no longer fired
+        updateValidStateText(event.detail.value);
       });
 
-      updateValidStateText();
+      updateValidStateText(formComplex.valid);
 
       var btnValidate = document.getElementById('btnValidate');
       btnValidate.addEventListener('click', function(event) {
-        formComplex.validate(true);
+        var isValid = formComplex.validate(true);
+        updateValidStateText(isValid);
       });
 
     });

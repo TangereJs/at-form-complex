@@ -43,7 +43,7 @@
   "use strict";
   Polymer({
     is: 'at-form-complex',
-    behaviors: [ Tangere.behaviors.i18n, Tangere.behaviors.RulesEvaluation ],
+    behaviors: [ Tangere.behaviors.i18n, Tangere.behaviors.RulesEvaluation, Tangere.behaviors.formUIGeneric ],
     properties: {
       /**
        * Textual label for the element
@@ -127,18 +127,7 @@
         observer: '_hideChanged',
         title: 'Field is invisible'
       },
-      /**
-       * Valid state of the element. When all elements on the form are valid form is valid. If at least one element on the form is invalid, form is invalid
-       * @property valid
-       * @type Boolean
-       * @default true
-       */
-      valid: {
-        type: Boolean,
-        notify: true,
-        value: true,
-        readOnly: true
-      },
+
       /**
        * _layout <br>
        * added as support for rendering rows in at-form-array <br>
@@ -156,18 +145,24 @@
         xvaluelist: 'horizontal,vertical'
       }
     },
+
+    observers: [
+      '_internalValidStateUpdate(disabled, hide)'
+    ],
+
     $meta: [{
       title: "Object",
       type: "object"
     }],
-    // Empty setter is here to prevent exceptions when valid is set from the outside
-    // setting valid from the outside is not allowed
-    set valid(value) {},
 
     _hideLabelChanged: function(newValue, oldValue) {
       this.toggleClass("hidden", newValue, this.$.label);
       var labelHr = this.$$('#labelHr');
       this.toggleClass("hidden", newValue, labelHr);
+    },
+
+    ready: function() {
+      this._isReady = true;
     },
 
     _schemaChanged: function(newValue, odlValue) {
@@ -226,7 +221,6 @@
       while (Polymer.dom(fieldsContainer).firstChild) {
         Polymer.dom(fieldsContainer).removeChild(Polymer.dom(fieldsContainer).firstChild);
       }
-
 
       var fieldsFragment = document.createDocumentFragment();
       var divPrototype = document.createElement('div');
@@ -343,7 +337,7 @@
 
         // if any element is required in schema its valid state is updated after creation
         // at-form-complex needs to reflect that state
-        this._updateValidState();
+        this.validate(false);
     },
 
     /* *ij*
@@ -469,7 +463,6 @@
         }
       });
 
-      this._updateValidState();
       this._fireValueChangedEvent(this.value);
     },
     /*
@@ -483,27 +476,18 @@
       // at-rule-engine/script/rule-engine.js line 308
       var rules = this.schema.rules;
       if (rules && rules.length > 0) {
-        if (!this.businessRulesEvaluationInProgress) {
-          this.businessRulesEvaluationInProgress = true;
-          this._evaluateRules(property, value);
-          this.businessRulesEvaluationInProgress = false;
-        } else {
+        if (this.businessRulesEvaluationInProgress) {
           return;
         }
+        this.businessRulesEvaluationInProgress = true;
+        this._evaluateRules(property, value);
+        this.businessRulesEvaluationInProgress = false;
       } else {
         this._internalData[property] = value;
         this.value[property] = value;
-        this._updateValidState();
+        this.validate(false);
         this._fireValueChangedEvent(this.value);
       }
-    },
-
-    _fireValueChangedEvent: function (value) {
-      this.fire('value-changed', {
-        value: value
-      }, {
-        bubbles: false
-      });
     },
 
     _disabledChanged: function(newValue, oldValue) {
@@ -523,10 +507,6 @@
           fieldElement.disabled = parsedValue || schemaHelpers.parseBool(properties[propertyName].disabled);
         }
       });
-
-      if (this._isReady) {
-        this._updateValidState();
-      }
     },
 
     _hideChanged: function(newValue, oldValue) {
@@ -536,15 +516,14 @@
       this._elementsToValidate.forEach(function (element) {
         element.hide = newValue;
       });
+    },
 
+    _internalValidStateUpdate: function (disabled, hide) {
       if (this._isReady) {
-        this._updateValidState();
+        this.validate(true);
       }
     },
-    ready: function() {
-      this._dataValidator = new DataValidator();
-      this._isReady = true;
-    },
+
     focus: function() {
       if (this.schema && this.schema.properties) {
         var properties = this.schema.properties;
@@ -574,35 +553,23 @@
       });
     },
 
-    _updateValidState: function() {
-      var isValid = true;
-
-      this._elementsToValidate.forEach(function(element) {
-        isValid = isValid && element.valid;
-      });
-
-      this._setValid(isValid);
-    },
-
     /*
      * Validates the form
      * It calls validate method of each element in elementsToValidate array
      * Form is valid if all elements are valid. Form is invalid if at least one element is invalid.
      */
-    validate: function() {
+    validate: function(showError) {
       var isFunction = function(obj) {
         return Object.prototype.toString.apply(obj) === "[object Function]";
       }
       var isValid = true;
-
+      if (showError === undefined) { showError = this.autovalidate; }
       this._elementsToValidate.forEach(function(element) {
         if (isFunction(element.validate)) {
-          var elementValid = element.validate();
+          var elementValid = element.validate(showError);
           isValid = isValid && elementValid;
         }
       });
-
-      this._setValid(isValid);
 
       return isValid;
     },
@@ -641,11 +608,11 @@
      * A helper function for iterating over all elements on the form-complex
      */
     _iterateElements: function(callback) {
-      var fieldsContainer = this.$.insertPoint;
+      var fieldsContainer = Polymer.dom(this.$.insertPoint);
       var properties = this.schema.properties;
 
       Object.keys(properties).forEach(function(propertyName) {
-        var fieldElement = Polymer.dom(fieldsContainer).querySelector('#' + propertyName);
+        var fieldElement = fieldsContainer.querySelector('#' + propertyName);
         if (fieldElement) {
           callback(fieldElement);
         }
