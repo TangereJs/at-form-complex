@@ -50,8 +50,7 @@
             'required': true
           },
           'city': {
-            'type': 'string',
-            'value': 'Default city name'
+            'type': 'string'
           },
           'active': {
             'type': 'boolean'
@@ -82,8 +81,7 @@
 
       var data = {
         'id': 3213,
-        'city': 'Boston',
-        'name': 'This is sample name',
+        'city': 'Boston',        
         'active': true,
         'activePera': false,
         'dropdownDemo': 'XML'
@@ -94,8 +92,7 @@
       formComplex1.value = data;
 
 
-      data.id = 88585;
-      data.name="This is sample name";
+      data.id = 88585;      
       data.city = "This is sample city";
       data.dropdownDemo = 'JSON';
       var formComplex2 = document.getElementById('formComplex-2');
