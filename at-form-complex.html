@@ -1,9 +1,9 @@
 <link rel="import" href="../tangere/tangere.html">
-<link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-theme/at-theme.html">
 <link rel="import" href="../at-elements/at-designer-elements.html">
 <link rel="import" href="../at-core-schema/at-core-schema.html">
 <link rel="import" href="../at-form-behaviors/at-form-behaviors-rules-evaluation.html">
+<link rel="import" href="../at-i18n/at-i18n-behavior.html">
 
 <dom-module id="at-form-complex">
   <template>
@@ -481,39 +481,11 @@
       // this if is a guard against infinite loop that can be caused by
       // DataValidator.prototype.complexActionsAdapter.copyFieldValue
       // at-rule-engine/script/rule-engine.js line 308
-      if (this.schema.rules) {
+      var rules = this.schema.rules;
+      if (rules && rules.length > 0) {
         if (!this.businessRulesEvaluationInProgress) {
           this.businessRulesEvaluationInProgress = true;
-          var complexUserValue = {};
-          schemaHelpers.copyProperties(Object.keys(this.value), [], this.value, complexUserValue);
-          complexUserValue[property] = value;
-          var complexBusinessValue = this._dataValidator.validateComplexValue(complexUserValue, this.schema.rules, this);
-          var self = this;
-
-          var complexUserValueJson = JSON.stringify(complexUserValue);
-          var complexBusinessValueJson = JSON.stringify(complexBusinessValue);
-          if (complexUserValueJson !== complexBusinessValueJson) {
-            // update form element's value because of R3
-            var bv_propertyNames = Object.keys(complexBusinessValue);
-            bv_propertyNames.forEach(function(bv_propertyName, index) {
-              var cuvPropValue = complexUserValue[bv_propertyName];
-              var cbvPropValue = complexBusinessValue[bv_propertyName];
-              if (cuvPropValue !== cbvPropValue) {
-                self.value[bv_propertyName] = cbvPropValue;
-                self.updateFormElementValue(bv_propertyName, cbvPropValue);
-              } else {
-                self.value[bv_propertyName] = cuvPropValue;
-                self.updateFormElementValue(bv_propertyName, cuvPropValue);
-              }
-            });
-
-            // trigger value-changed because of R4
-            this._fireValueChangedEvent(this.value);
-          } else {
-            this.value[property] = value;
-            this._updateValidState();
-            this._fireValueChangedEvent(this.value);
-          }
+          this._evaluateRules(property, value);
           this.businessRulesEvaluationInProgress = false;
         } else {
           return;
