@@ -28,6 +28,9 @@
         <div>
           <p>This demo also demonstrates the updates to valid state</p>
         </div>
+        <div class="horizontal layout center-justified">
+          <p>at-form-complex field is currently: <b id="validStateText"></b></p>
+        </div>
       </div>
     </div>
     <div class="horizontal layout">
@@ -35,10 +38,7 @@
         <at-form-complex id="formComplex" label="Demo label" hide-label="true"></at-form-complex>
       </div>
     </div>
-    <div class="horizontal layout center-justified">
-      <p>at-form-complex field is currently: <b id="validStateText"></b>
-      </p>
-    </div>
+
   </div>
   <script>
     window.addEventListener('WebComponentsReady', function (e) {
@@ -84,8 +84,7 @@
       };
       formComplex.value = {
         'id': 3213,
-        'city': 'Boston',
-        'name': 'This is sample name',
+        'city': 'Boston',       
         'active': true,
         'activePera': false,
         'dropdownDemo': 'XML'
