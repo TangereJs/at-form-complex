@@ -27,113 +27,113 @@
 
   <script>
 
-    // suite('validate function tests', function() {
-    //
-    //   function getSchema1() {
-    //     return {
-    //       properties: {
-    //         text1: {
-    //           type: "string",
-    //           required: true
-    //         },
-    //         text2: {
-    //           type: "string",
-    //           required: true
-    //         },
-    //         text3: {
-    //           type: "string",
-    //           "default": "text3 lorem ipsum"
-    //         },
-    //         text4: {
-    //           type: "string",
-    //           "default": "text4 lorem ipsum"
-    //         }
-    //       }
-    //     };
-    //   }
-    //
-    //   function getData1() {
-    //     return {
-    //       text1: "",
-    //       text2: "",
-    //       text3: "text3 ipsum lorem",
-    //       text4: "text4 ipsum lorem"
-    //     };
-    //   }
-    //
-    //   function getSchema2() {
-    //     return {
-    //       properties: {
-    //         text1: {
-    //           type: "string",
-    //           required: true
-    //         },
-    //         text2: {
-    //           type: "string",
-    //           required: true
-    //         },
-    //         text3: {
-    //           type: "string",
-    //           "default": "text3 lorem ipsum"
-    //         },
-    //         text4: {
-    //           type: "string",
-    //           "default": "text4 lorem ipsum"
-    //         }
-    //       }
-    //     };
-    //   }
-    //
-    //   function getData2() {
-    //     return {
-    //       text1: "text1 ipsum lorem",
-    //       text2: "text2 ipsum lorem",
-    //       text3: "text3 ipsum lorem",
-    //       text4: "text4 ipsum lorem"
-    //     };
-    //   }
-    //
-    //   function isBoolean(obj) {
-    //     return Object.prototype.toString.call(obj) === "[object Boolean]";
-    //   }
-    //
-    //   test('validate function returns boolean false', function() {
-    //     var element = fixture('validateFunctionTests');
-    //     var sh_ = window.schemaHelpers;
-    //
-    //     assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
-    //     assert.equal(element.valid, true, 'element is initially invalid');
-    //
-    //     element.schema = getSchema1();
-    //     element.value = getData1();
-    //
-    //     assert.equal(true, sh_.areEqual(element.schema, getSchema1()), 'schema not set correctly');
-    //     assert.equal(true, sh_.areEqual(element.value, getData1()), 'value not set correctly');
-    //
-    //     var result = element.validate();
-    //     assert.equal(isBoolean(result), true, 'validate return result is not of type Boolean');
-    //     assert.equal(false, result, 'element is valid');
-    //   });
-    //
-    //   test('validate function returns boolean true', function() {
-    //     var element = fixture('validateFunctionTests');
-    //     var sh_ = window.schemaHelpers;
-    //
-    //     assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
-    //     assert.equal(element.valid, true, 'element is initially invalid');
-    //
-    //     element.schema = getSchema2();
-    //     element.value = getData2();
-    //
-    //     assert.equal(true, sh_.areEqual(element.schema, getSchema2()), 'schema not set correctly');
-    //     assert.equal(true, sh_.areEqual(element.value, getData2()), 'value not set correctly');
-    //
-    //     var result = element.validate();
-    //     assert.equal(isBoolean(result), true, 'validate return result is not of type Boolean');
-    //     assert.equal(true, result, 'element is valid');
-    //   });
-    //
-    // });
+    suite('validate function tests', function() {
+
+      function getSchema1() {
+        return {
+          properties: {
+            text1: {
+              type: "string",
+              required: true
+            },
+            text2: {
+              type: "string",
+              required: true
+            },
+            text3: {
+              type: "string",
+              "default": "text3 lorem ipsum"
+            },
+            text4: {
+              type: "string",
+              "default": "text4 lorem ipsum"
+            }
+          }
+        };
+      }
+
+      function getData1() {
+        return {
+          text1: "",
+          text2: "",
+          text3: "text3 ipsum lorem",
+          text4: "text4 ipsum lorem"
+        };
+      }
+
+      function getSchema2() {
+        return {
+          properties: {
+            text1: {
+              type: "string",
+              required: true
+            },
+            text2: {
+              type: "string",
+              required: true
+            },
+            text3: {
+              type: "string",
+              "default": "text3 lorem ipsum"
+            },
+            text4: {
+              type: "string",
+              "default": "text4 lorem ipsum"
+            }
+          }
+        };
+      }
+
+      function getData2() {
+        return {
+          text1: "text1 ipsum lorem",
+          text2: "text2 ipsum lorem",
+          text3: "text3 ipsum lorem",
+          text4: "text4 ipsum lorem"
+        };
+      }
+
+      function isBoolean(obj) {
+        return Object.prototype.toString.call(obj) === "[object Boolean]";
+      }
+
+      test('validate function returns boolean false', function() {
+        var element = fixture('validateFunctionTests');
+        var sh_ = window.schemaHelpers;
+
+        assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
+        assert.equal(element.valid, true, 'element is initially invalid');
+
+        element.schema = getSchema1();
+        element.value = getData1();
+
+        assert.equal(true, sh_.areEqual(element.schema, getSchema1()), 'schema not set correctly');
+        assert.equal(true, sh_.areEqual(element.value, getData1()), 'value not set correctly');
+
+        var result = element.validate();
+        assert.equal(isBoolean(result), true, 'validate return result is not of type Boolean');
+        assert.equal(false, result, 'element is valid');
+      });
+
+      test('validate function returns boolean true', function() {
+        var element = fixture('validateFunctionTests');
+        var sh_ = window.schemaHelpers;
+
+        assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
+        assert.equal(element.valid, true, 'element is initially invalid');
+
+        element.schema = getSchema2();
+        element.value = getData2();
+
+        assert.equal(true, sh_.areEqual(element.schema, getSchema2()), 'schema not set correctly');
+        assert.equal(true, sh_.areEqual(element.value, getData2()), 'value not set correctly');
+
+        var result = element.validate();
+        assert.equal(isBoolean(result), true, 'validate return result is not of type Boolean');
+        assert.equal(true, result, 'element is valid');
+      });
+
+    });
 
     suite('showError tests', function () {
 
