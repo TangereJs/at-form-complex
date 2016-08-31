@@ -81,7 +81,7 @@
 
       var data = {
         'id': 3213,
-        'city': 'Boston',        
+        'city': 'Boston',
         'active': true,
         'activePera': false,
         'dropdownDemo': 'XML'
@@ -92,12 +92,37 @@
       formComplex1.value = data;
 
 
-      data.id = 88585;      
+      data.id = 88585;
       data.city = "This is sample city";
       data.dropdownDemo = 'JSON';
       var formComplex2 = document.getElementById('formComplex-2');
       formComplex2.schema = schema;
       formComplex2.value = data;
+
+      // not having internalUpdate flag causes stack overflow exceptions
+      var internalUpdate = false;
+
+      formComplex1.addEventListener('value-changed', function(event) {
+        if (internalUpdate) { return; }
+        internalUpdate = true;
+
+        // formComplex1 & formComplex2 already share memory, so its enough to just call _valueChanged
+        var newValue = event.detail.value;
+        formComplex2._valueChanged(newValue);
+
+        internalUpdate = false;
+      });
+
+      formComplex2.addEventListener('value-changed', function(event) {
+        if (internalUpdate) { return; }
+        internalUpdate = true;
+
+        // formComplex1 & formComplex2 already share memory, so its enough to just call _valueChanged
+        var newValue = event.detail.value;
+        formComplex1._valueChanged(newValue);
+
+        internalUpdate = false;
+      });
 
     });
   </script>
