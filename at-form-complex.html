@@ -305,7 +305,7 @@
 
           // *ij* support for layout
           // if layout === horizontal new elements have hidden labels
-          fieldElement.hideLabel = self._layout === 'horizontal';
+          fieldElement.hideLabel = propertyDefinition.hideLabel || self._layout === 'horizontal';
 
           // if at-form-complex is initially hidden, element should be hidden as well
           fieldElement.hide = self.hide || _sh.parseBool(propertyDefinition.hide);
