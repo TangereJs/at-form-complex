@@ -313,6 +313,10 @@
           // if at-form-complex is initially disabled, element should be disabled as well
           fieldElement.disabled = self.disabled || _sh.parseBool(propertyDefinition.disabled);
 
+          // form-complex passes its value of autovalidate to its contained elements
+          // this enables at-core-form to control autovalidate value for elements contained inside form-complex
+          fieldElement.autovalidate = self.autovalidate;
+
           // append paper element to its container
           Polymer.dom(fieldContainer).appendChild(fieldElement);
           // add container to as child to insertPoint
