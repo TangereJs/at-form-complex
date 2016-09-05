@@ -101,14 +101,14 @@
         var element = fixture('validateFunctionTests');
         var sh_ = window.schemaHelpers;
 
-        assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
+        assert.equal(sh_.areEqual({}, element.value), true, 'initial value not set correctly');
         assert.equal(element.valid, true, 'element is initially invalid');
 
         element.schema = getSchema1();
         element.value = getData1();
 
-        assert.equal(true, sh_.areEqual(element.schema, getSchema1()), 'schema not set correctly');
-        assert.equal(true, sh_.areEqual(element.value, getData1()), 'value not set correctly');
+        assert.equal(sh_.areEqual(element.schema, getSchema1()), true, 'schema not set correctly');
+        assert.equal(sh_.areEqual(element.value, getData1()), true, 'value not set correctly');
 
         var result = element.validate();
         assert.equal(isBoolean(result), true, 'validate return result is not of type Boolean');
@@ -119,7 +119,7 @@
         var element = fixture('validateFunctionTests');
         var sh_ = window.schemaHelpers;
 
-        assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
+        assert.equal(sh_.areEqual({}, element.value), true, 'initial value not set correctly');
         assert.equal(element.valid, true, 'element is initially invalid');
 
         element.schema = getSchema2();
@@ -181,8 +181,8 @@
 
           var field = element.getElement(fieldName);
           var fieldHint = Polymer.dom(field.$.hint);
-          assert.equal(expectedHintValue, fieldHint.innerHTML, "field error message display not correct");
-          assert.equal(expectedValidValue, field.validate(false), "field valid state not correct");
+          assert.equal(fieldHint.innerHTML, expectedHintValue, "field error message display not correct");
+          assert.equal(field.validate(false), expectedValidValue, "field valid state not correct");
         }
       }
 
@@ -190,17 +190,17 @@
         var element = fixture('validateFunctionTests');
         var sh_ = window.schemaHelpers;
 
-        assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
+        assert.equal(sh_.areEqual({}, element.value), true, 'initial value not set correctly');
         assert.equal(element.valid, true, 'element is initially invalid');
 
         element.schema = getSchema1();
         element.value = getData1();
 
-        assert.equal(true, sh_.areEqual(element.schema, getSchema1()), 'schema not set correctly');
-        assert.equal(true, sh_.areEqual(element.value, getData1()), 'value not set correctly');
+        assert.equal(sh_.areEqual(element.schema, getSchema1()), true, 'schema not set correctly');
+        assert.equal(sh_.areEqual(element.value, getData1()), true, 'value not set correctly');
 
         var isValid = element.validate(false);
-        assert.equal(false, isValid, "form-complex is valid");
+        assert.equal(isValid, false, "form-complex is valid");
 
         // errors should initially be hidden
 
@@ -211,7 +211,7 @@
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         var isValid = element.validate(true);
-        assert.equal(false, isValid, "form-complex is valid");
+        assert.equal(isValid, false, "form-complex is valid");
 
         // errors should now be visible
 
@@ -219,7 +219,7 @@
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         var isValid = element.validate(false);
-        assert.equal(false, isValid, "form-complex is valid");
+        assert.equal(isValid, false, "form-complex is valid");
 
         // errors are still visible because show errors doesn't hide previous errors
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
@@ -229,17 +229,17 @@
         var element = fixture('validateFunctionTests');
         var sh_ = window.schemaHelpers;
 
-        assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
+        assert.equal(sh_.areEqual({}, element.value), true, 'initial value not set correctly');
         assert.equal(element.valid, true, 'element is initially invalid');
 
         element.schema = getSchema1();
         element.value = getData1();
 
-        assert.equal(true, sh_.areEqual(element.schema, getSchema1()), 'schema not set correctly');
-        assert.equal(true, sh_.areEqual(element.value, getData1()), 'value not set correctly');
+        assert.equal(sh_.areEqual(element.schema, getSchema1()), true, 'schema not set correctly');
+        assert.equal(sh_.areEqual(element.value, getData1()), true, 'value not set correctly');
 
         var isValid = element.validate(true);
-        assert.equal(false, isValid, "form-complex is valid");
+        assert.equal(isValid, false, "form-complex is valid");
 
         // errors should initially be visible
 
@@ -250,13 +250,13 @@
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         var isValid = element.validate(false);
-        assert.equal(false, isValid, "form-complex is valid");
+        assert.equal(isValid, false, "form-complex is valid");
 
         // errors are still visible because show errors doesn't hide previous errors
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         var isValid = element.validate(true);
-        assert.equal(false, isValid, "form-complex is valid");
+        assert.equal(isValid, false, "form-complex is valid");
 
         // errors are still visible because validate was called with showErrors = true
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
@@ -266,36 +266,35 @@
         var element = fixture('validateFunctionTests');
         var sh_ = window.schemaHelpers;
 
-        assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
+        assert.equal(sh_.areEqual({}, element.value), true, 'initial value not set correctly');
         assert.equal(element.valid, true, 'element is initially invalid');
 
         element.schema = getSchema1();
         element.value = getData1();
 
-        assert.equal(true, sh_.areEqual(element.schema, getSchema1()), 'schema not set correctly');
-        assert.equal(true, sh_.areEqual(element.value, getData1()), 'value not set correctly');
+        assert.equal(sh_.areEqual(element.schema, getSchema1()), true, 'schema not set correctly');
+        assert.equal(sh_.areEqual(element.value, getData1()), true, 'value not set correctly');
 
         var isValid = element.validate(true);
-        assert.equal(false, isValid, "form-complex is valid");
+        assert.equal(isValid, false, "form-complex is valid");
 
         // errors should initially be visible
 
         var fieldNames = [ "text1", "text2", "text3", "text4" ];
         var expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
         var expectedValidValues = [ false, false, true, true ];
-
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         element.disabled = true;
-        assert.equal(true, element.valid, "form-complex is invalid");
+        assert.equal(element.valid, true, "form-complex is invalid");
 
-        expectedHintValues = [ "", "", "", "" ];
+        expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
         expectedValidValues = [ true, true, true, true ];
         // errors are still visible because show errors doesn't hide previous errors
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         element.disabled = false;
-        assert.equal(false, element.valid, "form-complex is valid");
+        assert.equal(element.valid, false, "form-complex is valid");
         expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
         expectedValidValues = [ false, false, true, true ];
         // errors are still visible because validate was called with showErrors = true
@@ -306,17 +305,17 @@
         var element = fixture('validateFunctionTests');
         var sh_ = window.schemaHelpers;
 
-        assert.equal(true, sh_.areEqual({}, element.value), 'initial value not set correctly');
+        assert.equal(sh_.areEqual({}, element.value), true, 'initial value not set correctly');
         assert.equal(element.valid, true, 'element is initially invalid');
 
         element.schema = getSchema1();
         element.value = getData1();
 
-        assert.equal(true, sh_.areEqual(element.schema, getSchema1()), 'schema not set correctly');
-        assert.equal(true, sh_.areEqual(element.value, getData1()), 'value not set correctly');
+        assert.equal(sh_.areEqual(element.schema, getSchema1()), true, 'schema not set correctly');
+        assert.equal(sh_.areEqual(element.value, getData1()), true, 'value not set correctly');
 
         var isValid = element.validate(true);
-        assert.equal(false, isValid, "form-complex is valid");
+        assert.equal(isValid, false, "form-complex is valid");
 
         // errors should initially be visible
 
@@ -327,15 +326,15 @@
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         element.hide = true;
-        assert.equal(true, element.valid, "form-complex is invalid");
+        assert.equal(element.valid, true, "form-complex is invalid");
 
-        expectedHintValues = [ "", "", "", "" ];
+        expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
         expectedValidValues = [ true, true, true, true ];
         // errors are still visible because show errors doesn't hide previous errors
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         element.hide = false;
-        assert.equal(false, element.valid, "form-complex is valid");
+        assert.equal(element.valid, false, "form-complex is valid");
         expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
         expectedValidValues = [ false, false, true, true ];
         // errors are still visible because validate was called with showErrors = true

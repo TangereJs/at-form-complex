@@ -325,13 +325,15 @@
 
         // if data was set first there is a chance that some properties form this._internalData are missing in this.data
         // this.data must be updated with missing properties
-        var internalDataKeys = Object.keys(this._internalData);
-        internalDataKeys.forEach(function (key, index) {
-          // self.value[key] === undefined means that the key is missing from self.value
-          if (!self.value.hasOwnProperty(key)) {
-            self.value[key] = self._internalData[key];
-          }
-        });
+        if (_sh.isObject(self.value)) {
+          var internalDataKeys = Object.keys(this._internalData);
+          internalDataKeys.forEach(function (key, index) {
+            // self.value[key] === undefined means that the key is missing from self.value
+            if (!self.value.hasOwnProperty(key)) {
+              self.value[key] = self._internalData[key];
+            }
+          });
+        }
 
         // add div class="clearfix"
         var clearfixDiv = divPrototype.cloneNode(true);
@@ -342,7 +344,7 @@
 
         // if any element is required in schema its valid state is updated after creation
         // at-form-complex needs to reflect that state
-        this.validate(false);
+        this.validate();
     },
 
     /* *ij*
@@ -490,7 +492,7 @@
       } else {
         this._internalData[property] = value;
         this.value[property] = value;
-        this.validate(false);
+        this.validate();
         this._fireValueChangedEvent(this.value);
       }
     },
@@ -525,7 +527,7 @@
 
     _internalValidStateUpdate: function (disabled, hide) {
       if (this._isReady) {
-        this.validate(true);
+        this.validate();
       }
     },
 
@@ -567,8 +569,10 @@
       var isFunction = function(obj) {
         return Object.prototype.toString.apply(obj) === "[object Function]";
       }
+
       var isValid = true;
       if (showError === undefined) { showError = this.autovalidate; }
+
       this._elementsToValidate.forEach(function(element) {
         if (isFunction(element.validate)) {
           var elementValid = element.validate(showError);
