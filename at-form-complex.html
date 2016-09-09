@@ -148,7 +148,7 @@
     },
 
     observers: [
-      '_internalValidStateUpdate(disabled, hide)'
+      '_internalValidStateUpdate(disabled)'
     ],
 
     $meta: [{
@@ -525,7 +525,7 @@
       });
     },
 
-    _internalValidStateUpdate: function (disabled, hide) {
+    _internalValidStateUpdate: function (disabled) {
       if (this._isReady) {
         this.validate();
       }
