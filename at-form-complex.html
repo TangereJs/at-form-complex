@@ -111,7 +111,6 @@
        */
       disabled: {
         type: Boolean,
-        notify: true,
         value: false,
         observer: '_disabledChanged',
         title: 'Field value can not be changed'
@@ -146,10 +145,6 @@
         xvaluelist: 'horizontal,vertical'
       }
     },
-
-    observers: [
-      '_internalValidStateUpdate(disabled)'
-    ],
 
     $meta: [{
       title: "Object",
@@ -525,12 +520,6 @@
       });
     },
 
-    _internalValidStateUpdate: function (disabled) {
-      if (this._isReady) {
-        this.validate();
-      }
-    },
-
     focus: function() {
       if (this.schema && this.schema.properties) {
         var properties = this.schema.properties;
@@ -574,7 +563,7 @@
       if (showError === undefined) { showError = this.autovalidate; }
 
       this._elementsToValidate.forEach(function(element) {
-        if (isFunction(element.validate)) {
+        if (!element.disabled && !element.hide && isFunction(element.validate)) {
           var elementValid = element.validate(showError);
           isValid = isValid && elementValid;
         }
