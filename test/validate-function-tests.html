@@ -289,7 +289,7 @@
         assert.equal(element.valid, true, "form-complex is invalid");
 
         expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
-        expectedValidValues = [ true, true, true, true ];
+        expectedValidValues = [ false, false, true, true ];
         // errors are still visible because show errors doesn't hide previous errors
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
@@ -329,7 +329,7 @@
         assert.equal(element.valid, true, "form-complex is invalid");
 
         expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
-        expectedValidValues = [ true, true, true, true ];
+        expectedValidValues = [ false, false, true, true ];
         // errors are still visible because show errors doesn't hide previous errors
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 

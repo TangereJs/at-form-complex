@@ -172,10 +172,6 @@
             section: {
               type: "section"
             },
-            state: {
-              type: "string",
-              xtype: "state"
-            },
             text: {
               type: "string"
             },
@@ -186,8 +182,10 @@
           }
         };
       }
-
-      var elementIds = Object.keys(getSchema().properites);
+      // state: {
+      //   type: "string",
+      //   xtype: "state"
+      // },
 
       function assertElementIsValid(element) {
         var isValid = element.valid;
@@ -203,14 +201,14 @@
         assert.equal(isValid, false, 'element is valid');
       }
 
-      function assertFormIsValid() {
+      function assertFormIsValid(coreForm) {
         var isValid = coreForm.valid;
         assert.equal(isValid, true, 'core form is invalid');
         isValid = coreForm.validate();
         assert.equal(isValid, true, 'core form is invalid');
       }
 
-      function assertFormIsInvalid() {
+      function assertFormIsInvalid(coreForm) {
         var isValid = coreForm.valid;
         assert.equal(isValid, false, 'core form is valid');
         isValid = coreForm.validate();
@@ -221,6 +219,11 @@
         var coreForm = fixture('propertyTest');
         var i, elementId, element;
         var isValid;
+
+        var elementIds = Object.keys(getSchema().properties);
+        var sectionIndex = elementIds.indexOf('section');
+        elementIds.splice(sectionIndex, 1);
+
         // set the schema
         coreForm.schema = getSchema();
         assert.equal(areEqual(coreForm.schema, getSchema()), true, 'schema is not set correctly');
@@ -297,7 +300,9 @@
           element.value = null;
           element.required = true;
 
-          assert.equal(element.value, null, "element value not set correctly");
+          if (elementId !== "image") {
+            assert.equal(element.value, null, "element value not set correctly");
+          }
           assert.equal(element.required, true, "element required not set correctly");
 
           assertElementIsInvalid(element);
@@ -353,7 +358,12 @@
           assert.equal(element.hide, false, 'element is hidden');
 
           // make element valid
-          element.value = element.properties.value.value;
+          var initialValue = element.properties.value.value;
+          if (isFunction(initialValue)) {
+            element.value = initialValue()            ;
+          } else {
+            element.value = initialValue;
+          }
           element.required = false;
 
           assertElementIsValid(element);
