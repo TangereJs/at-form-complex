@@ -310,7 +310,7 @@
 
           // form-complex passes its value of autovalidate to its contained elements
           // this enables at-core-form to control autovalidate value for elements contained inside form-complex
-          fieldElement.autovalidate = self.autovalidate;
+          fieldElement.autoValidate = self.autoValidate;
 
           // append paper element to its container
           Polymer.dom(fieldContainer).appendChild(fieldElement);
@@ -560,7 +560,7 @@
       }
 
       var isValid = true;
-      if (showError === undefined) { showError = this.autovalidate; }
+      if (showError === undefined) { showError = this.autoValidate; }
 
       this._elementsToValidate.forEach(function(element) {
         if (!element.disabled && !element.hide && isFunction(element.validate)) {
