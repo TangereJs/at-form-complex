@@ -207,7 +207,7 @@
         // unsupported types
         // list type or xtype of the element that should not be supported by at-form-complex
         // ------------------------------------------------------------
-        self._unsupported_types = ["object", "array"];
+        self._unsupported_types = ["object"];
       }
 
       var fieldsContainer = this.$.insertPoint;
@@ -271,10 +271,10 @@
           if (!self._internalData.hasOwnProperty(propertyName)) {
             // at-form-complex._internalData doesn't contain an entry for the current property
             // add initial value of the formElement to the at-form-complex.data
-            self._internalData[propertyName] = fieldElement.value;
+            self._internalData[propertyName] = JSON.parse(JSON.stringify(fieldElement.value));
           } else {
             // else set initial value from at-form-complex.data to fromElement
-            fieldElement.value = self._internalData[propertyName];
+            fieldElement.value = JSON.parse(JSON.stringify(self._internalData[propertyName]));
           }
 
           if (_sh.isFunction(fieldElement.clearUIValidState)) {
@@ -428,7 +428,7 @@
       // update _internalData with keys from newValue
       var newValueKeys = Object.keys(newValue);
       newValueKeys.forEach(function (key, index) {
-        _internalData[key] = newValue[key];
+        _internalData[key] = JSON.parse(JSON.stringify(newValue[key]));
       });
 
       if (!_sh.isObject(this.schema) || !_sh.isObject(this.schema.properties) || Object.keys(this.schema.properties).length === 0) {
@@ -452,7 +452,7 @@
       newValueKeys.forEach(function(propertyName) {
         fieldElement = self.getElement(propertyName);
         if (fieldElement) {
-          fieldElement.value = newValue[propertyName];
+          fieldElement.value = JSON.parse(JSON.stringify(newValue[propertyName]));
         }
       });
 
@@ -461,7 +461,7 @@
       var internalDataKeys = Object.keys(this._internalData);
       internalDataKeys.forEach(function (key, index) {
         if (!self.value.hasOwnProperty(key)) {
-          self.value[key] = self._internalData[key];
+          self.value[key] = JSON.parse(JSON.stringify(self._internalData[key]));
         }
       });
 
