@@ -268,13 +268,15 @@
           displayType = schemaHelpers.getDisplayType(propertyDefinition, self._unsupported_types);
           fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
 
-          if (!self._internalData.hasOwnProperty(propertyName)) {
-            // at-form-complex._internalData doesn't contain an entry for the current property
-            // add initial value of the formElement to the at-form-complex.data
-            self._internalData[propertyName] = JSON.parse(JSON.stringify(fieldElement.value));
-          } else {
-            // else set initial value from at-form-complex.data to fromElement
-            fieldElement.value = JSON.parse(JSON.stringify(self._internalData[propertyName]));
+          if (displayType !== "section") {
+            if (!self._internalData.hasOwnProperty(propertyName)) {
+              // at-form-complex._internalData doesn't contain an entry for the current property
+              // add initial value of the formElement to the at-form-complex.data
+                self._internalData[propertyName] = JSON.parse(JSON.stringify(fieldElement.value));
+            } else {
+              // else set initial value from at-form-complex.data to fromElement
+              fieldElement.value = JSON.parse(JSON.stringify(self._internalData[propertyName]));
+            }
           }
 
           if (_sh.isFunction(fieldElement.clearUIValidState)) {
@@ -473,11 +475,12 @@
      * value is the new value to be set
      */
     _updateValueObject: function(property, value) {
+      var _sh = window.schemaHelpers;
       // this if is a guard against infinite loop that can be caused by
       // DataValidator.prototype.complexActionsAdapter.copyFieldValue
       // at-rule-engine/script/rule-engine.js line 308
       var rules = this.schema.rules;
-      if (rules && rules.length > 0) {
+      if (_sh.isArray(rules) && rules.length > 0) {
         if (this.businessRulesEvaluationInProgress) {
           return;
         }
@@ -487,9 +490,15 @@
       } else {
         this._internalData[property] = value;
         this.value[property] = value;
-        this.validate();
-        this._fireValueChangedEvent(this.value);
+
+        if (_sh.isObject(value) || _sh.isArray(value)) {
+          var clonedValue = JSON.parse(JSON.stringify(value));
+          this._internalData[property] = clonedValue;
+          this.value[property] = clonedValue;
+        }
       }
+      this.validate();
+      this._fireValueChangedEvent(this.value);
     },
 
     _disabledChanged: function(newValue, oldValue) {

@@ -221,7 +221,8 @@
         var isValid = element.validate(false);
         assert.equal(isValid, false, "form-complex is valid");
 
-        // errors are still visible because show errors doesn't hide previous errors
+        // errors are hidden because show errors hides previous errors
+        expectedHintValues = [ "", "", "", "" ];
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
       });
 
@@ -252,12 +253,14 @@
         var isValid = element.validate(false);
         assert.equal(isValid, false, "form-complex is valid");
 
+        expectedHintValues = [ "", "", "", "" ];
         // errors are still visible because show errors doesn't hide previous errors
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         var isValid = element.validate(true);
         assert.equal(isValid, false, "form-complex is valid");
 
+        expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
         // errors are still visible because validate was called with showErrors = true
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
       });
@@ -288,14 +291,14 @@
         element.disabled = true;
         assert.equal(element.valid, true, "form-complex is invalid");
 
-        expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
+        expectedHintValues = [ "", "", "", "" ];
         expectedValidValues = [ false, false, true, true ];
         // errors are still visible because show errors doesn't hide previous errors
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         element.disabled = false;
         assert.equal(element.valid, false, "form-complex is valid");
-        expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
+        expectedHintValues = [ "", "", "", "" ];
         expectedValidValues = [ false, false, true, true ];
         // errors are still visible because validate was called with showErrors = true
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
@@ -328,14 +331,14 @@
         element.hide = true;
         assert.equal(element.valid, true, "form-complex is invalid");
 
-        expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
+        expectedHintValues = [ "", "", "", "" ];
         expectedValidValues = [ false, false, true, true ];
         // errors are still visible because show errors doesn't hide previous errors
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
 
         element.hide = false;
         assert.equal(element.valid, false, "form-complex is valid");
-        expectedHintValues = [ element.T("This field is required."), element.T("This field is required."), "", "" ];
+        expectedHintValues = [ "", "", "", "" ];
         expectedValidValues = [ false, false, true, true ];
         // errors are still visible because validate was called with showErrors = true
         assertFields(element, fieldNames, expectedHintValues, expectedValidValues);
