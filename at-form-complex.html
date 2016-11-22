@@ -306,6 +306,8 @@
 
         // if at-form-complex is initially hidden, element should be hidden as well
         fieldElement.hide = self.hide || _sh.parseBool(propertyDefinition.hide);
+        // added for AT-214; when element is hidden, fieldContainer for that element should be hidden as well
+        self.toggleClass('hidden', fieldElement.hide, fieldContainer);
 
         // if at-form-complex is initially disabled, element should be disabled as well
         fieldElement.disabled = self.disabled || _sh.parseBool(propertyDefinition.disabled);
@@ -437,6 +439,10 @@
       }
 
       element[state] = value;
+      // added for AT-214; when element is hidden its container should also be hidden
+      if (state === "hide") {
+        this.toggleClass('hidden', value, element.parentElement);
+      }
     },
 
     getElement: function(elementId) {
