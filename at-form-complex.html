@@ -1,10 +1,10 @@
 <link rel="import" href="../tangere/tangere.html">
 <link rel="import" href="../at-theme/at-theme.html">
 <link rel="import" href="../at-elements/at-designer-elements.html">
-<link rel="import" href="../at-core-schema/at-core-schema.html">
-<link rel="import" href="../at-form-behaviors/at-form-behaviors-rules-evaluation.html">
 <link rel="import" href="../at-i18n/at-i18n-behavior.html">
-<link rel="import" href="../at-form-behaviors/at-form-behaviors.html">
+<link rel="import" href="../at-core-schema/at-core-schema.html">
+<link rel="import" href="../at-rule-engine/at-rule-engine.html">
+<link rel="import" href="../at-form-behaviors/at-form-behaviors-rules-evaluation.html">
 
 <dom-module id="at-form-complex">
   <template>
@@ -365,7 +365,7 @@
         // if data is the same rules are not evaluated
         // this means that if user doesn't change default values for elements between rule Editing and preview,
         // updated rules will not be initially executed, but its expected that rules be executed
-        this._rulesEvaluator = new RulesEvaluator();
+        this._rulesEvaluator = RulesEvaluator();
 
         // 2. Why do we reset active schema every time?
         // Because, activeSchema is cached as a private variable in at-form-behaviors-rules-evaluation so its saved between schema changes,
