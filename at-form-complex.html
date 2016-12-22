@@ -563,8 +563,11 @@
     },
 
     _disabledChanged: function(newValue, oldValue) {
-      var atContainer = this.$.atContainer;
-      this.toggleClass('disabled', newValue, atContainer);
+      this.toggleClass('disabled', newValue, this.$.label);
+      var labelHr = this.$$('#labelHr');
+      if (labelHr) {
+        this.toggleClass('disabled', newValue, labelHr);
+      }
 
       var fieldsContainer = this.$.insertPoint;
       var fieldElement;
