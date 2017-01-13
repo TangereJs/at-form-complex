@@ -3,8 +3,7 @@
   "private": true,
   "dependencies": {
     "tangere": "TangereJs/tangere#master",
-    "at-theme": "TangereJs/at-theme#master",
-    "at-elements": "TangereJs/at-elements#master",
+    "at-theme": "TangereJs/at-theme#master",   
     "at-i18n": "TangereJs/at-i18n#master",
     "at-core-schema": "TangereJs/at-core-schema#master",
     "at-rule-engine": "TangereJs/at-rule-engine#master",
