@@ -20,13 +20,24 @@
         @apply(--at-form-host);
       }
 
+      #insertPoint.layout.horizontal :first-child {
+        padding: 0 4px 0 0;
+      }
+
+      #insertPoint.layout.horizontal :last-child {
+        padding: 0 0 0 4px;
+      }
+
+      .layout.horizontal .form-element {
+        padding: 0 4px 0 4px;
+      }
+
       /*
         *ij* default value of min-height changed to 34px from 0
         this is a workaround a flex bug in IE11 where min height was not applied correctly in flexbox mode
         https://github.com/philipwalton/flexbugs#3-min-height-on-a-flex-container-wont-apply-to-its-flex-items
-      */
+        */
       .form-element {
-        padding: 0 4px 0 4px;
         min-height: var(--at-form-complex-form-element-min-height, 34px);
       }
 
@@ -346,11 +357,6 @@
           }
         });
       }
-
-      // add div class="clearfix"
-      var clearfixDiv = divPrototype.cloneNode(true);
-      Polymer.dom(clearfixDiv).classList.add('clearfix');
-      Polymer.dom(fieldsFragment).appendChild(clearfixDiv);
 
       Polymer.dom(fieldsContainer).appendChild(fieldsFragment);
 
