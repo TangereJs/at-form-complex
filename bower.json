@@ -8,7 +8,7 @@
     "at-core-schema": "TangereJs/at-core-schema#master",
     "at-rule-engine": "TangereJs/at-rule-engine#master",
     "at-form-behaviors": "TangereJs/at-form-behaviors#master",
-    "layout": "polymer/layout#master",
+    "layout": "TangereJs/layout#master",
     "at-form-ruleset": "TangereJs/at-form-ruleset#master",
     "at-form-codemirror": "TangereJs/at-form-codemirror#master",
     "at-doc-viewer": "TangereJs/at-doc-viewer#master",
