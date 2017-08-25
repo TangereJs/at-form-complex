@@ -52,11 +52,13 @@
               formComplex.schema = schema;
               formComplex.value = data;
 
-              assert.isObject(formComplex._internalData, 'internal data is not set');
-              assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
-              assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
-              assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
-              assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point is not empty');
+              flush(function() {
+                assert.isObject(formComplex._internalData, 'internal data is not set');
+                assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
+                assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
+                assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
+                assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point is not empty');                
+              });
             }
           }
         });
@@ -79,12 +81,13 @@
             var schema = invalidSchemas[i];
             formComplex.schema = schema;
             formComplex.value = data;
-
-            assert.isObject(formComplex._internalData, 'internal data is not set');
-            assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
-            assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
-            assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
-            assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point is not empty');
+            flush(function(){
+              assert.isObject(formComplex._internalData, 'internal data is not set');
+              assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
+              assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
+              assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
+              assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point is not empty');
+            });
           }
         });
       });
@@ -109,7 +112,7 @@
             assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
             assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
             assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
-            assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point is not empty');
+            assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point is not empty');
           }
         });
       });
@@ -174,7 +177,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           var eventCount = 0;
           formComplex.addEventListener('value-changed', function(event) {
@@ -204,7 +207,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           flush(function() {
             assert.equal(eventCount, 1, 'at-form-complex didn\'t fire corrent number of events');
@@ -238,7 +241,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           var eventCount = 0;
           formComplex.addEventListener('value-changed', function(event) {
@@ -268,7 +271,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           flush(function() {
             assert.equal(eventCount, 1, 'at-form-complex didn\'t fire corrent number of events');
@@ -302,7 +305,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           var eventCount = 0;
           formComplex.addEventListener('value-changed', function(event) {
@@ -332,7 +335,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           flush(function() {
             assert.equal(eventCount, 1, 'at-form-complex didn\'t fire corrent number of events');
@@ -366,7 +369,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           var eventCount = 0;
           formComplex.addEventListener('value-changed', function(event) {
@@ -396,7 +399,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           flush(function() {
             assert.equal(eventCount, 1, 'at-form-complex didn\'t fire corrent number of events');
@@ -481,7 +484,7 @@
           assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate doesn\'t contain corrent number of elements');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point doesn\'t contain corrent number of elements');
 
 
           formComplex.schema = stringSchema;
@@ -507,7 +510,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           flush(function() {
             assert.equal(eventCount, 1, 'at-form-complex didn\'t fire corrent number of events');
@@ -537,7 +540,7 @@
           assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate doesn\'t contain corrent number of elements');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point doesn\'t contain corrent number of elements');
 
 
           formComplex.schema = stringSchema;
@@ -563,7 +566,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           flush(function() {
             assert.equal(eventCount, 1, 'at-form-complex didn\'t fire corrent number of events');
@@ -593,7 +596,7 @@
           assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate doesn\'t contain corrent number of elements');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point doesn\'t contain corrent number of elements');
 
           formComplex.schema = schema;
 
@@ -618,7 +621,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           flush(function() {
             assert.equal(eventCount, 1, 'at-form-complex didn\'t fire corrent number of events');
@@ -647,7 +650,7 @@
           assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate doesn\'t contain corrent number of elements');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point doesn\'t contain corrent number of elements');
 
 
           formComplex.schema = schema;
@@ -673,7 +676,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           flush(function() {
             assert.equal(eventCount, 1, 'at-form-complex didn\'t fire corrent number of events');
@@ -702,7 +705,7 @@
           assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate doesn\'t contain corrent number of elements');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point doesn\'t contain corrent number of elements');
 
           formComplex.schema = schema;
 
@@ -727,7 +730,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           /* these should not trigger data-changed */
           formComplex.updateFormElementValue('text1', 'text1 lorem ipsum');
@@ -839,7 +842,7 @@
           assert.equal(formComplex._elementsToValidate.length, 4, 'elements to validate doesn\'t contain corrent number of elements');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           formComplex.value = getData1();
 
@@ -865,7 +868,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           /* these should not trigger data-changed */
           formComplex.updateFormElementValue('text1', 'text1 lorem ipsum');
@@ -934,7 +937,7 @@
           assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate doesn\'t contain corrent number of elements');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point doesn\'t contain corrent number of elements');
 
           formComplex.schema = schema;
 
@@ -959,7 +962,7 @@
           assert.equal(formComplex._elementsToValidate[3].id, "text4", 'text4 not present in _elementsToValidate');
 
           var insertPoint = formComplex.$.insertPoint;
-          assert.equal(Polymer.dom(insertPoint).children.length, 5, 'insert point doesn\'t contain corrent number of elements');
+          assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           /* these should not trigger data-changed */
           formComplex.updateFormElementValue('text1', 'text1 lorem ipsum');
