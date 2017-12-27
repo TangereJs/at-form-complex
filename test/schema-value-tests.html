@@ -21,101 +21,146 @@
 
 <body>
 
-  <test-fixture>
+  <test-fixture id="propertyTests">
     <template>
       <at-form-complex></at-form-complex>
     </template>
   </test-fixture>
 
   <script>
-    suite('tests for schema and data where schema and data are set as properties', function() {
+    suite('schema is invalid, data is invalid', function() {
 
-      suite('schema is invalid, data is invalid', function() {
-
-        test('invalid schema, invalid data both provided as arrays of invalid values', function() {
-          var invalidSchemas = [undefined, null, "", "undefined", "null", true, false, "true", "false", {},
-            [],
-            function() {
-              return undefined;
-            }
-          ];
-          var invalidDatas = [undefined, null, "", "undefined", "null", true, false, "true", "false", [], function() {
+      test('invalid schema, invalid data both provided as arrays of invalid values', function(done) {
+        var invalidSchemas = [undefined, null, "", "undefined", "null", true, false, "true", "false", {},
+          [],
+          function() {
             return undefined;
-          }];
-          var formComplex = document.createElement('at-form-complex');
-          var insertPoint = formComplex.$.insertPoint;
+          }
+        ];
+        var invalidDatas = [undefined, null, "", "undefined", "null", true, false, "true", "false", [], function() {
+          return undefined;
+        }];
+        var formComplex = fixture('propertyTests');
+        var insertPoint = formComplex.$.insertPoint;
 
-          for (var i = 0; i < invalidSchemas.length; i++) {
-            var schema = invalidSchemas[i];
-            for (var j = 0; j < invalidDatas.length; j++) {
-              var data = invalidDatas[j];
-              formComplex.schema = schema;
-              formComplex.value = data;
+        var i=0; 
+        var j=0;
+        var schema = invalidSchemas[i];
+        var data = invalidDatas[j];
 
-              flush(function() {
-                assert.isObject(formComplex._internalData, 'internal data is not set');
-                assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
-                assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
-                assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
-                assert.equal(Polymer.dom(insertPoint).children.length, 1, 'insert point is not empty');                
-              });
+        formComplex.schema = schema;
+        formComplex.data = data;
+
+        function assertState() {
+          assert.isObject(formComplex._internalData, 'internal data is not set');
+          assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
+          assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
+          assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
+          assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point is not empty');
+
+          j++;
+          if (j == invalidDatas.length) {
+            j = 0;
+            i++;
+
+            if (i == invalidSchemas.length) {
+              done();
             }
           }
-        });
 
+          schema = invalidSchemas[i];
+          data = invalidDatas[j];
+          formComplex.schema = schema;
+          formComplex.data = data;
+
+          flush(assertState);
+        }
+        
+        flush(assertState);
       });
 
-      suite('schema is invalid, data is valid', function() {
-        test('schema is invalid, data is valid --- schema is provided as array of invalid values, data is empty object', function() {
-          var invalidSchemas = [undefined, null, "", "undefined", "null", true, false, "true", "false", {},
-            [],
-            function() {
-              return undefined;
-            }
-          ];
-          var data = {};
-          var formComplex = document.createElement('at-form-complex');
-          var insertPoint = formComplex.$.insertPoint;
+    });
 
-          for (var i = 0; i < invalidSchemas.length; i++) {
-            var schema = invalidSchemas[i];
-            formComplex.schema = schema;
-            formComplex.value = data;
-            flush(function(){
-              assert.isObject(formComplex._internalData, 'internal data is not set');
-              assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
-              assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
-              assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
-              assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point is not empty');
-            });
-          }
-        });
-      });
-
-      suite('schema is valid, data is invalid', function() {
-        test('schema is valid, data is invalid - schema is { properties : {} }, data is array of invalid values', function() {
-          var schema = {
-            properties: {}
-          };
-          var invalidDatas = [undefined, null, "", "undefined", "null", true, false, "true", "false", [], function() {
+    suite('schema is invalid, data is valid', function() {
+      test('schema is invalid, data is valid --- schema is provided as array of invalid values, data is empty object', function(done) {
+        var invalidSchemas = [undefined, null, "", "undefined", "null", true, false, "true", "false", {}, [],
+          function() {
             return undefined;
-          }];
-          var formComplex = document.createElement('at-form-complex');
-          var insertPoint = formComplex.$.insertPoint;
-
-          for (var j = 0; j < invalidDatas.length; j++) {
-            var data = invalidDatas[j];
-            formComplex.schema = schema;
-            formComplex.value = data;
-
-            assert.isObject(formComplex._internalData, 'internal data is not set');
-            assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
-            assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
-            assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
-            assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point is not empty');
           }
-        });
+        ];
+        var data = {};
+        var formComplex = fixture('propertyTests');
+        var insertPoint = formComplex.$.insertPoint;
+
+        var i=0; 
+        var schema = invalidSchemas[i];
+
+        formComplex.schema = schema;
+        formComplex.data = data;
+
+        function assertState() {
+          assert.isObject(formComplex._internalData, 'internal data is not set');
+          assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
+          assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
+          assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
+          assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point is not empty');
+
+          i++;
+          if (i == invalidSchemas.length) {
+            done();
+          }
+
+          schema = invalidSchemas[i];
+          formComplex.schema = schema;
+          formComplex.data = data;
+
+          flush(assertState);
+        }
+        
+        flush(assertState);
       });
+    });
+
+    suite('schema is valid, data is invalid', function() { 
+      test('schema is valid, data is invalid - schema is { properties : {} }, data is array of invalid values', function(done) {
+        var schema = {
+          properties: {}
+        };
+        var invalidDatas = [undefined, null, "", "undefined", "null", true, false, "true", "false", [], function() {
+          return undefined;
+        }];
+        var formComplex = fixture('propertyTests');
+        var insertPoint = formComplex.$.insertPoint;
+
+        var i=0; 
+        var data = invalidDatas[i];
+
+        formComplex.schema = schema;
+        formComplex.data = data;
+
+        function assertState() {
+          assert.isObject(formComplex._internalData, 'internal data is not set');
+          assert.equal(Object.keys(formComplex._internalData).length, 0, 'internal data is not empty');
+          assert.isArray(formComplex._elementsToValidate, 'elements to validate is not set');
+          assert.equal(formComplex._elementsToValidate.length, 0, 'elements to validate is not empty');
+          assert.equal(Polymer.dom(insertPoint).children.length, 0, 'insert point is not empty');
+
+          i++;
+          if (i == invalidDatas.length) {
+            done();
+          }
+
+          data = invalidDatas[i];
+          formComplex.schema = schema;
+          formComplex.data = data;
+
+          flush(assertState);
+        }
+        
+        flush(assertState);
+
+      });
+    });
 
       suite('schema is valid, data is valid', function() {
 
@@ -210,7 +255,7 @@
           assert.equal(Polymer.dom(insertPoint).children.length, 4, 'insert point doesn\'t contain corrent number of elements');
 
           flush(function() {
-            assert.equal(eventCount, 1, 'at-form-complex didn\'t fire corrent number of events');
+            assert.equal(eventCount, 1, "at-form-complex didn\'t fire corrent number of events");
             done();
           });
         });
@@ -1011,9 +1056,6 @@
 
       });
 
-
-
-    });
   </script>
 </body>
 
