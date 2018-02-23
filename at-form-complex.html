@@ -577,7 +577,7 @@
         }
       }
       this.validate();
-      this._fireValueChangedEvent(this.value);
+      this.fire('value-changed', { value: this.value, property: property }, { bubbles: false });
     },
 
     _disabledChanged: function(newValue, oldValue) {
