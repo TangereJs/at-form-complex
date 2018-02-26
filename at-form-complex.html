@@ -38,7 +38,7 @@
         https://github.com/philipwalton/flexbugs#3-min-height-on-a-flex-container-wont-apply-to-its-flex-items
         */
       .form-element {
-        min-height: var(--at-form-complex-form-element-min-height, 34px);
+        min-height: var(--at-form-complex-form-element-min-height, 76px);
       }
 
       /*
@@ -47,7 +47,12 @@
         https://github.com/philipwalton/flexbugs#3-min-height-on-a-flex-container-wont-apply-to-its-flex-items
       */
       .horizontal .form-element {
-        min-height: var(--at-form-complex-layout-horizontal-form-element-min-height, 34px);
+        min-height: var(--at-form-complex-layout-horizontal-form-element-min-height, 76px);
+      }
+
+      .form-element.at-form-checkbox,
+      .horizontal .form-element.at-form-checkbox {
+        min-height: 32px;
       }
 
     </style>
@@ -291,6 +296,10 @@
 
         displayType = schemaHelpers.getDisplayType(propertyDefinition, self._unsupported_types);
         fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
+
+        if (fieldElement.is === "at-form-checkbox") {
+          fieldContainer.classList.add('at-form-checkbox');
+        }
 
         if (displayType !== "section") {
           if (!self._internalData.hasOwnProperty(propertyName)) {
