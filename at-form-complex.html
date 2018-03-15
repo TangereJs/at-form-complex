@@ -60,7 +60,7 @@
     </style>
     <div id="atContainer" class="at-container">
       <iron-label id="label">{{label}}</iron-label>
-      <template is="dom-if" if="{{label}}">
+      <template is="dom-if" if="{{label}}" on-dom-change="_handleLabelHrDomChange">
         <hr id="labelHr">
       </template>
       <div id="contentContainer" class="at-content-container">
@@ -184,8 +184,18 @@
 
     _hideLabelChanged: function(newValue, oldValue) {
       this.toggleClass("hidden", newValue, this.$.label);
+      this._toggleLabelHorizontalLine(newValue);
+    },
+
+    _handleLabelHrDomChange: function(event) {
+      this._toggleLabelHorizontalLine(this.hideLabel);
+    },
+
+    _toggleLabelHorizontalLine: function(hideLabel) {
       var labelHr = this.$$('#labelHr');
-      this.toggleClass("hidden", newValue, labelHr);
+      if (labelHr) {
+        this.toggleClass("hidden", hideLabel, labelHr);
+      }
     },
 
     ready: function() {
