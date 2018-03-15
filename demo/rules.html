@@ -5,17 +5,15 @@
   <meta name="viewport" content="width=device-width" />
   <title>at-form-complex business rules demo</title>
 
-  <script src="../webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="at-form-complex.html">
-  <link rel="import" href="../layout/layout.html">
-  <link rel="import" href="../at-form-ruleset/at-form-ruleset.html">
-  <link rel="import" href="../at-form-codemirror/at-form-codemirror.html">
-  <style>
-    .my-body {
-      width: 90%;
-      margin-top: 5%;
-      margin-left: 5%;
-      margin-right: 5%;
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../at-form-complex.html">
+  <link rel="import" href="../../at-form-ruleset/at-form-ruleset.html">
+  <link rel="import" href="../../at-form-codemirror/at-form-codemirror.html">
+  <link rel="import" href="../../at-core-style-classes/at-core-style-classes.html" />
+
+  <style is="custom-style" include="at-core-style-classes">
+    .container {
+      margin: 32px 64px 0 64px;
     }
 
     .component {
@@ -30,10 +28,10 @@
   </style>
 </head>
 
-<body class="my-body">
-  <div class="vertical layout">
-    <div class="horizontal layout">
-      <div class="vertical layout">
+<body class="container">
+  <div class="layout-vertical">
+    <div class="layout-horizontal">
+      <div class="layout-vertical">
         <div>
           <h3>This demo shows automatic business rules validation for at-form-complex</h3>
         </div>
@@ -42,19 +40,19 @@
         </div>
       </div>
     </div>
-    <div class="horizontal layout">
-      <div class="flex component">
-        <div class="horizontal layout center-justified">
+    <div class="layout-horizontal">
+      <div class="layout-flex component">
+        <div class="layout-horizontal center-justified">
           <p>at-form-complex field is currently: <b id="validStateText"></b>
           </p>
         </div>
         <at-form-complex id="formComplex" label="at-form-complex automatic business rules validation"></at-form-complex>
       </div>
-      <div class="flex component">
+      <div class="layout-flex component">
         <at-form-ruleset id="ruleEdit"></at-form-ruleset>
       </div>
     </div>
-    <div class="vertical layout echo">
+    <div class="layout-vertical echo">
       <h4>at-form-complex value echo:</h4>
       <p>
         When values are changed here, should rules be applied?

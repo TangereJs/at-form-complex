@@ -5,36 +5,34 @@
   <meta name="viewport" content="width=device-width" />
   <title>at-form-complex demo</title>
 
-  <script src="../webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="at-form-complex.html">
-  <link rel="import" href="../layout/layout.html">
-  <style>
-    .my-body {
-      width: 90%;
-      margin-top: 5%;
-      margin-left: 5%;
-      margin-right: 5%;
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../at-form-complex.html">
+  <link rel="import" href="../../at-core-style-classes/at-core-style-classes.html" />
+
+  <style is="custom-style" include="at-core-style-classes">
+    .container {
+      margin: 32px 64px 0 64px;
     }
   </style>
 </head>
 
-<body class="my-body">
-  <div class="vertical layout">
-    <div class="horizontal layout">
-      <div class="vertical layout">
+<body class="container">
+  <div class="layout-vertical">
+    <div class="layout-horizontal">
+      <div class="layout-vertical">
         <div>
           <h3>This demo shows a single at-form-complex</h3>
         </div>
         <div>
           <p>This demo also demonstrates the updates to valid state</p>
         </div>
-        <div class="horizontal layout center-justified">
+        <div class="layout-horizontal layout-center-justified">
           <button type="button" id="btnValidate">Validate</button> <p>at-form-complex field is currently: <b id="validStateText"></b></p>
         </div>
       </div>
     </div>
-    <div class="horizontal layout">
-      <div class="flex">
+    <div class="layout-horizontal">
+      <div class="layout-flex">
         <at-form-complex id="formComplex" label="Demo label" hide-label="true"></at-form-complex>
       </div>
     </div>

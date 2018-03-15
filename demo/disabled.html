@@ -5,20 +5,19 @@
   <meta name="viewport" content="width=device-width" />
   <title>at-form-complex demo</title>
 
-  <script src="../webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="at-form-complex.html">
-  <link rel="import" href="../layout/layout.html">
-  <style>
-    .my-body {
-      width: 90%;
-      margin-top: 5%;
-      margin-left: 5%;
-      margin-right: 5%;
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../at-form-complex.html">
+  <link rel="import" href="../../at-core-style-classes/at-core-style-classes.html" />
+
+  <style is="custom-style" include="at-core-style-classes">
+    .container {
+      margin: 32px 64px 0 64px;
     }
 
     .light-padding {
-      padding-left: 4px;
-      padding-right: 4px;
+      margin: 0 4px;
+      padding: 0 4px;
+      border: solid thin #bbb;
     }
 
     .top-margin {
@@ -27,14 +26,14 @@
   </style>
 </head>
 
-<body class="my-body">
-  <div class="vertical layout">
-    <div class="horizontal layout">
-      <div class="flex">
+<body class="container">
+  <div class="layout-vertical">
+    <div class="layout-horizontal">
+      <div class="layout-flex">
         <at-form-complex id="formComplex" disabled></at-form-complex>
       </div>
     </div>
-    <div class="horizontal layout center-justified top-margin">
+    <div class="layout-horizontal layout-center-justified top-margin">
       <div class="light-padding">
         <p>The complex field is currently: <b id="disabledStatus"></b>
         </p>
