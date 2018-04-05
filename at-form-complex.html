@@ -693,9 +693,12 @@
       if (newValue === 'horizontal') {
         this.toggleClass('horizontal', true, fieldsContainer);
         this.toggleClass('vertical', false, fieldsContainer);
+        this.hideLabelsForElements();
+
       } else if (newValue === 'vertical') {
         this.toggleClass('horizontal', false, fieldsContainer);
         this.toggleClass('vertical', true, fieldsContainer);
+        this.showLabelsForElements();
       }
     },
     /**
