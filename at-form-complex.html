@@ -304,7 +304,11 @@
         if (!usexgridCols) {
           gridColsCssName = "flex";
         }
-        Polymer.dom(fieldContainer).classList.add(gridColsCssName);
+        
+        // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
+        if (self._layout === "horizontal" && gridColsCssName === "flex") {
+          Polymer.dom(fieldContainer).classList.add(gridColsCssName);
+        }
 
         displayType = schemaHelpers.getDisplayType(propertyDefinition, self._unsupported_types);
         fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
@@ -694,11 +698,17 @@
         this.toggleClass('horizontal', true, fieldsContainer);
         this.toggleClass('vertical', false, fieldsContainer);
         this.hideLabelsForElements();
+        
+        // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
+        this.addFlexClassToElements();
 
       } else if (newValue === 'vertical') {
         this.toggleClass('horizontal', false, fieldsContainer);
         this.toggleClass('vertical', true, fieldsContainer);
         this.showLabelsForElements();
+        
+        // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
+        this.removeFlexClassFromElements();
       }
     },
     /**
@@ -717,6 +727,19 @@
         element.hideLabel = false;
       });
     },
+
+    addFlexClassToElements: function() {
+      this._iterateElements(function(element) {
+        element.parentNode.classList.add('flex');
+      });
+    },
+    
+    removeFlexClassFromElements: function() {
+      this._iterateElements(function(element) {
+        element.parentNode.classList.remove('flex');
+      });
+    },
+
     /**
      * A helper function for iterating over all elements on the form-complex
      */
