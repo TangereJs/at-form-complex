@@ -279,6 +279,8 @@
         Polymer.dom(insertPoint).classList.add('layout');
       } else {
         Polymer.dom(insertPoint).classList.remove('layout');
+        Polymer.dom(insertPoint).classList.remove('horizontal');
+        Polymer.dom(insertPoint).classList.remove('vertical');
       }
 
       propertyNames.forEach(function(propertyName) {
@@ -292,25 +294,24 @@
           self._internalData[propertyName] = defaultValue;
         }
 
+        displayType = schemaHelpers.getDisplayType(propertyDefinition, self._unsupported_types);
+
         // handle xgridcols
         var xgridcols = displayType === "section" ? 12 : 6;
-        if (_sh.isNumber(propertyDefinition.xgridcols)) {
+        if (_sh.isString(propertyDefinition.xgridcols) || _sh.isNumber(propertyDefinition.xgridcols)) {
           xgridcols = parseInt(propertyDefinition.xgridcols);
         }
 
         fieldContainer = divPrototype.cloneNode(true);
         Polymer.dom(fieldContainer).classList.add('form-element');
         var gridColsCssName = "col-" + xgridcols;
-        if (!usexgridCols) {
+        if (!usexgridCols && self._layout === "horizontal") {
+        // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
           gridColsCssName = "flex";
         }
         
-        // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
-        if (self._layout === "horizontal" && gridColsCssName === "flex") {
-          Polymer.dom(fieldContainer).classList.add(gridColsCssName);
-        }
+        Polymer.dom(fieldContainer).classList.add(gridColsCssName);
 
-        displayType = schemaHelpers.getDisplayType(propertyDefinition, self._unsupported_types);
         fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
 
         if (fieldElement.is === "at-form-checkbox") {
@@ -694,8 +695,10 @@
      */
     _layoutChanged: function(newValue, oldValue) {
       var fieldsContainer = this.$.insertPoint;
+      var hasLayout = fieldsContainer.classList.contains('layout');
+
       if (newValue === 'horizontal') {
-        this.toggleClass('horizontal', true, fieldsContainer);
+        this.toggleClass('horizontal', hasLayout && true, fieldsContainer);
         this.toggleClass('vertical', false, fieldsContainer);
         this.hideLabelsForElements();
         
@@ -704,7 +707,7 @@
 
       } else if (newValue === 'vertical') {
         this.toggleClass('horizontal', false, fieldsContainer);
-        this.toggleClass('vertical', true, fieldsContainer);
+        this.toggleClass('vertical', hasLayout && true, fieldsContainer);
         this.showLabelsForElements();
         
         // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
