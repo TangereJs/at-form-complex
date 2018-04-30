@@ -594,6 +594,10 @@
         this._evaluateRules(property, value);
         this._isBusinessRulesEvaluationInProgress = false;
       } else {
+        if (!_sh.isObject(this.value)) {
+          this.value = {};
+        }
+
         this.value[property] = value;
 
         if (_sh.isObject(value) || _sh.isArray(value)) {
