@@ -38,6 +38,7 @@
         this is a workaround a flex bug in IE11 where min height was not applied correctly in flexbox mode
         https://github.com/philipwalton/flexbugs#3-min-height-on-a-flex-container-wont-apply-to-its-flex-items
         */
+
       .form-element {
         min-height: var(--at-form-complex-form-element-min-height, 76px);
       }
@@ -47,6 +48,7 @@
         this is a workaround a flex bug in IE11 where min height was not applied correctly in flexbox mode
         https://github.com/philipwalton/flexbugs#3-min-height-on-a-flex-container-wont-apply-to-its-flex-items
       */
+
       .horizontal .form-element {
         min-height: var(--at-form-complex-layout-horizontal-form-element-min-height, 76px);
       }
@@ -55,7 +57,6 @@
       .horizontal .form-element.at-form-checkbox {
         min-height: 32px;
       }
-
     </style>
     <div id="atContainer" class="at-container">
       <iron-label id="label">{{label}}</iron-label>
@@ -74,7 +75,7 @@
   "use strict";
   Polymer({
     is: 'at-form-complex',
-    behaviors: [ Tangere.behaviors.i18n, Tangere.behaviors.RulesEvaluation, Tangere.behaviors.formUIGeneric ],
+    behaviors: [Tangere.behaviors.i18n, Tangere.behaviors.RulesEvaluation, Tangere.behaviors.formUIGeneric],
     properties: {
       /**
        * Textual label for the element
@@ -305,10 +306,10 @@
         Polymer.dom(fieldContainer).classList.add('form-element');
         var gridColsCssName = "col-" + xgridcols;
         if (!usexgridCols && self._layout === "horizontal") {
-        // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
+          // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
           gridColsCssName = "flex";
         }
-        
+
         Polymer.dom(fieldContainer).classList.add(gridColsCssName);
 
         fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
@@ -321,7 +322,7 @@
           if (!self._internalData.hasOwnProperty(propertyName)) {
             // at-form-complex._internalData doesn't contain an entry for the current property
             // add initial value of the formElement to the at-form-complex.data
-              self._internalData[propertyName] = JSON.parse(JSON.stringify(fieldElement.value));
+            self._internalData[propertyName] = JSON.parse(JSON.stringify(fieldElement.value));
           } else {
             // else set initial value from at-form-complex.data to fromElement
             fieldElement.value = JSON.parse(JSON.stringify(self._internalData[propertyName]));
@@ -375,7 +376,7 @@
       // this.data must be updated with missing properties
       if (_sh.isObject(self.value)) {
         var internalDataKeys = Object.keys(this._internalData);
-        internalDataKeys.forEach(function (key, index) {
+        internalDataKeys.forEach(function(key, index) {
           // self.value[key] === undefined means that the key is missing from self.value
           if (!self.value.hasOwnProperty(key)) {
             self.value[key] = self._internalData[key];
@@ -395,7 +396,7 @@
       this.validate();
     },
 
-    _executeRuleEvaluation: function (schema) {
+    _executeRuleEvaluation: function(schema) {
       var _sh = window.schemaHelpers;
       if (this._isBusinessRulesEvaluationInProgress) {
         return;
@@ -528,7 +529,7 @@
 
       // update _internalData with keys from newValue
       var newValueKeys = Object.keys(newValue);
-      newValueKeys.forEach(function (key, index) {
+      newValueKeys.forEach(function(key, index) {
         _internalData[key] = JSON.parse(JSON.stringify(newValue[key]));
       });
 
@@ -560,7 +561,7 @@
       // newValue can contain only a subset of properties on the form
       // value in value-changed should contain all properties so we need to copy over missing properties from _internalData
       var internalDataKeys = Object.keys(this._internalData);
-      internalDataKeys.forEach(function (key, index) {
+      internalDataKeys.forEach(function(key, index) {
         if (!self.value.hasOwnProperty(key)) {
           self.value[key] = JSON.parse(JSON.stringify(self._internalData[key]));
         }
@@ -635,7 +636,7 @@
       var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
 
-      this._elementsToValidate.forEach(function (element) {
+      this._elementsToValidate.forEach(function(element) {
         element.hide = newValue;
       });
     },
@@ -704,7 +705,7 @@
         this.toggleClass('horizontal', hasLayout && true, fieldsContainer);
         this.toggleClass('vertical', false, fieldsContainer);
         this.hideLabelsForElements();
-        
+
         // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
         this.addFlexClassToElements();
 
@@ -712,7 +713,7 @@
         this.toggleClass('horizontal', false, fieldsContainer);
         this.toggleClass('vertical', hasLayout && true, fieldsContainer);
         this.showLabelsForElements();
-        
+
         // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
         this.removeFlexClassFromElements();
       }
@@ -739,7 +740,7 @@
         element.parentNode.classList.add('flex');
       });
     },
-    
+
     removeFlexClassFromElements: function() {
       this._iterateElements(function(element) {
         element.parentNode.classList.remove('flex');
