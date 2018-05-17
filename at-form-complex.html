@@ -1,18 +1,19 @@
 <link rel="import" href="../tangere/tangere.html">
-<link rel="import" href="../at-theme/at-theme.html">
+<link rel="import" href="../at-core-style-classes/at-core-style-classes.html">
 <link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-core-schema/at-core-schema.html">
 <link rel="import" href="../at-rule-engine/at-rule-engine.html">
 <link rel="import" href="../at-form-behaviors/at-form-behaviors.html">
 <link rel="import" href="../at-form-behaviors/at-form-behaviors-rules-evaluation.html">
 <link rel="import" href="../iron-label/iron-label.html">
+<link rel="import" href="../at-core-view/at-core-view.html">
 
 <dom-module id="at-form-complex">
   <template>
     <style include="at-form-common"></style>
     <style include="iron-flex"></style>
     <style include="iron-flex-factors"></style>
-    <style>
+    <style include="at-core-style-classes">
       :host * {
         box-sizing: border-box;
       }
@@ -65,6 +66,7 @@
       </template>
       <div id="contentContainer" class="at-content-container">
         <div id="insertPoint"></div>
+        <at-core-view id="placeholder" view="[[placeholder]]" hidden></at-core-view>
       </div>
       <div id="hint"></div>
     </div>
@@ -159,6 +161,14 @@
         title: 'Field is invisible'
       },
 
+      placeholder: {
+        type: String,
+        value: "<div class='m'> <div class='placeholder-text'></div><div class='placeholder-text mtsm'></div></div>",
+        xtype: 'code',
+        xgridcols: "12",
+        mode: "html"
+      },
+
       /**
        * _layout <br>
        * added as support for rendering rows in at-form-array <br>
@@ -251,17 +261,114 @@
         self._unsupported_types = ["object"];
       }
 
-      var fieldsContainer = this.$.insertPoint;
-
       // clear the previous html content in the container
-      // we do not use Polymer.dom(fieldsContainer).innerHTML = "" because innerHTML invokes browser's html parser which is more expensive than removing nodes
-      while (Polymer.dom(fieldsContainer).firstChild) {
-        Polymer.dom(fieldsContainer).removeChild(Polymer.dom(fieldsContainer).firstChild);
+      Polymer.dom(this.$.insertPoint).innerHTML = "";
+
+      var properties = newValue.properties;
+      var propNames = Object.getOwnPropertyNames(properties);
+
+      // do not render empty schema 
+      if (propNames.length === 0) return;
+
+      // figure out what needs to be imported
+      _sh.initializeCentralArrayOfComponents();
+      var notImportedElements = [];
+
+      propNames.forEach(function(propName) {
+        var propDef = properties[propName];
+        var displayType = _sh.getDisplayType(propDef, self._unsupported_types);
+        var mapping = _sh.findMapping(displayType);
+
+        // propDef.default !== window is added to hanlde cases from polymer behaviors
+        // where initial value for properities is window
+        if (!mapping && propDef.default !== window) {
+          // element is not loaded; scheadule it for importHref
+          var scheduledPropDef = JSON.parse(JSON.stringify(propDef));
+          scheduledPropDef.displayType = displayType;
+          notImportedElements.push(scheduledPropDef);
+        }
+      });
+
+      var displayTypeToFormElementMapping = {
+        array: "at-form-array",
+        boolean: "at-form-checkbox",
+        toggle: "at-form-checkbox",
+        code: "at-form-codemirror",
+        json: "at-form-codemirror",
+        object: "at-form-complex",
+        date: "at-form-date",
+        time: "at-form-date",
+        datetime: "at-form-date",
+        daterange: "at-form-daterange",
+        file: "at-form-file",
+        html: "at-form-html",
+        image: "at-form-image",
+        'enum': "at-form-lookup",
+        lookup: "at-form-lookup",
+        marked: "at-form-markdown",
+        password: "at-form-password",
+        number: "at-form-number",
+        radio: "at-form-radio",
+        section: "at-form-section",
+        state: "at-form-state",
+        string: "at-form-text",
+        textarea: "at-form-textarea",
+        cron: "at-form-cron",
+        random: "at-form-random"
+      };
+
+      if (!notImportedElements.length) {
+        this._renderSchema(propNames, properties);
+        return;
       }
 
+      Polymer.dom(this.$.placeholder).removeAttribute('hidden');
+
+      var pendingImportsCount = notImportedElements.length;
+      notImportedElements.forEach(function(propDef, index) {
+        // To construct elemHref we need static information about what (type, xtype) maps to which at-form element
+        // Right now, only $meta in each element contains this information and central array of components is populated with $meta information
+        // So, to dynamically importHref needed elements we need to introduce static information (which will just be a copy paste from $meta of each element)
+
+        var displayType = propDef.displayType;
+        var elementName = displayTypeToFormElementMapping[displayType];
+
+        if (!elementName) {
+          console.debug("Please add a mapping for (type, xtype) = (" + propDef.type + ", " + propDef.xtype + ") to displayTypeToFormElementMapping object in at-form-complex");
+          pendingImportsCount -= 1;
+        } else {
+          // construct elemHref
+          var compUrl = this.resolveUrl("../");
+
+          if (document.URL.indexOf("/elements/designer-element/") >= 0) {
+            compUrl = "/components/";
+          }
+
+          if (window.ComponentsBase != undefined) {
+            compUrl = window.ComponentsBase;
+          }
+          var elemHref = compUrl + elementName + "/" + elementName + ".html";
+
+          self.importHref(elemHref, function(e) {
+            // import was successful
+            pendingImportsCount -= 1;
+            if (!pendingImportsCount) {
+              self._renderSchema(propNames, properties);
+            }
+          }, function(e) {
+            // import failed
+            console.log("import failed: " + e.target.href);
+          }, true);
+        }
+      }, this);
+
+    },
+
+    _renderSchema: function(propertyNames, propDefs) {
+      var self = this;
+      var _sh = window.schemaHelpers;
       var fieldsFragment = document.createDocumentFragment();
       var divPrototype = document.createElement('div');
-      var propertyNames = Object.keys(newValue.properties);
 
       var propertyDefinition; // definition of a single property
       var defaultValue; // holds the default value for the element
@@ -272,7 +379,7 @@
       var usexgridCols = false;
 
       // FIXME: why usexgridCols exists? what is its purpose?
-      var propertiesJsonStr = JSON.stringify(newValue.properties);
+      var propertiesJsonStr = JSON.stringify(propDefs);
       usexgridCols = propertiesJsonStr.indexOf("xgridcols") !== -1;
       var insertPoint = this.$.insertPoint;
       if (!usexgridCols) {
@@ -284,7 +391,7 @@
       }
 
       propertyNames.forEach(function(propertyName) {
-        propertyDefinition = newValue.properties[propertyName];
+        propertyDefinition = propDefs[propertyName];
 
         // handle the default value
         defaultValue = propertyDefinition.default;
@@ -384,11 +491,11 @@
         });
       }
 
-      Polymer.dom(fieldsContainer).appendChild(fieldsFragment);
-
+      Polymer.dom(self.$.insertPoint).appendChild(fieldsFragment);
+      Polymer.dom(this.$.placeholder).setAttribute('hidden', '');
       // evaluate rules against new schema
       if (propertyNames.length) {
-        self._executeRuleEvaluation(newValue);
+        self._executeRuleEvaluation(this.schema);
       }
 
       // if any element is required in schema its valid state is updated after creation
