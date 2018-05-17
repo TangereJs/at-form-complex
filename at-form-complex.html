@@ -501,6 +501,8 @@
       // if any element is required in schema its valid state is updated after creation
       // at-form-complex needs to reflect that state
       this.validate();
+
+      this.fire('rendered', this, { bubbles: false });
     },
 
     _executeRuleEvaluation: function(schema) {
