@@ -49,8 +49,7 @@
       test('schema does not hide, hide and check each element', function(done) {
 
         var formComplex = fixture('propertyTests');
-        formComplex.schema = getSchema();
-        flush(function() {
+        formComplex.addEventListener('rendered', function() {
           var text1 = formComplex.getElement('text1');
           assert.equal(text1.hide, false, 'text1 is hidden');
           var text2 = formComplex.getElement('text2');
@@ -84,6 +83,7 @@
 
           done();
         });
+        formComplex.schema = getSchema();
       });
 
       function getHidingSchema() {
@@ -108,9 +108,8 @@
       test('schema hides, show and hide and check each element', function(done) {
 
         var formComplex = fixture('propertyTests');
-        formComplex.schema = getHidingSchema();
 
-        flush(function() {
+        formComplex.addEventListener('rendered', function() {
           var text1 = formComplex.getElement('text1');
           assert.equal(text1.hide, true, 'text1 is hidden');
           var text2 = formComplex.getElement('text2');
@@ -145,6 +144,7 @@
           done();
         });
 
+        formComplex.schema = getHidingSchema();
       });
 
     });

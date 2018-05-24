@@ -28,7 +28,8 @@
 
   <test-fixture id="autovalidate">
     <template>
-      <at-form-complex schema='{ "properties": { "property1": { "type": "string", "required": "true" }, "property2": { "type": "string", "default": "lorem ipsum", "required": true } } }' auto-validate></at-form-complex>
+      <at-form-complex schema='{ "properties": { "property1": { "type": "string", "required": "true" }, "property2": { "type": "string", "default": "lorem ipsum", "required": true } } }'
+        auto-validate></at-form-complex>
     </template>
   </test-fixture>
 
@@ -39,7 +40,163 @@
   </test-fixture>
 
   <script>
-    suite('autovalidate tests', function() {
+    function assertHintContent(element, expectedHint) {
+      var hint = Polymer.dom(element.$.hint);
+      assert.equal(hint.textContent, expectedHint, 'Error message not set correctly');
+    }
+
+    function checkRendered() {
+      if (this.element.__rendered__) {
+        this.renderedHandler();
+        return;
+      }
+
+      setTimeout(this.boundCheckRendered, 100);
+    }
+
+    suite('autovalidate set as attribute', function() {
+
+      test('no autovalidate, do not show errors', function() {
+        var element = fixture('noAutovalidate');
+
+        function renderedHandler() {
+          element.required = true;
+          element.value = {};
+
+          var isValid = element.validate();
+          assert.equal(isValid, false, "element is valid");
+          assertHintContent(element, "");
+
+          var prop1 = element.getElement('property1');
+          assertHintContent(prop1, "");
+          var prop2 = element.getElement('property2');
+          assertHintContent(prop2, "");
+
+          isValid = element.validate(true);
+          assert.equal(isValid, false, "element is valid");
+          assertHintContent(element, "");
+
+          prop1 = element.getElement('property1');
+          assertHintContent(prop1, element.T("This field is required."));
+          prop2 = element.getElement('property2');
+          assertHintContent(prop2, "");
+        }
+
+        var context = {
+          element: element,
+          renderedHandler: renderedHandler,
+          boundCheckRendered: checkRendered.bind(context)
+        };
+        setTimeout(checkRendered.bind(context), 100);
+      });
+
+      test('no autovalidate, do show errors', function() {
+        var element = fixture('noAutovalidate');
+
+        function renderedHandler() {
+          element.required = true;
+          element.value = {};
+
+          var isValid = element.validate(true);
+          assert.equal(isValid, false, "element is valid");
+          assertHintContent(element, "");
+
+          var prop1 = element.getElement('property1');
+          assertHintContent(prop1, element.T("This field is required."));
+          var prop2 = element.getElement('property2');
+          assertHintContent(prop2, "");
+
+          isValid = element.validate();
+          assert.equal(isValid, false, "element is valid");
+          assertHintContent(element, "");
+
+          prop1 = element.getElement('property1');
+          assertHintContent(prop1, "");
+          prop2 = element.getElement('property2');
+          assertHintContent(prop2, "");
+        }
+
+        var context = {
+          element: element,
+          renderedHandler: renderedHandler,
+          boundCheckRendered: checkRendered.bind(context)
+        };
+        setTimeout(checkRendered.bind(context), 100);
+      });
+
+      test('autovalidate, do not show errors', function(done) {
+        var element = fixture('autovalidate');
+
+        function renderedHandler(event) {
+          element.required = true;
+          element.value = {};
+
+          var isValid = element.validate();
+          assert.equal(isValid, false, "element is valid");
+          assertHintContent(element, "");
+
+          var prop1 = element.getElement('property1');
+          assertHintContent(prop1, element.T("This field is required."));
+          var prop2 = element.getElement('property2');
+          assertHintContent(prop2, "");
+
+          isValid = element.validate(false);
+          assert.equal(isValid, false, "element is valid");
+          assertHintContent(element, "");
+
+          prop1 = element.getElement('property1');
+          assertHintContent(prop1, "");
+          prop2 = element.getElement('property2');
+          assertHintContent(prop2, "");
+
+          done();
+        }
+        var context = {
+          element: element,
+          renderedHandler: renderedHandler,
+          boundCheckRendered: checkRendered.bind(context)
+        };
+        setTimeout(checkRendered.bind(context), 100);
+      });
+
+      test('autovalidate, do show errors', function(done) {
+        var element = fixture('autovalidate');
+
+        function renderedHandler(event) {
+          element.required = true;
+          element.value = {};
+
+          var isValid = element.validate(true);
+          assert.equal(isValid, false, "element is valid");
+          assertHintContent(element, "");
+
+          prop1 = element.getElement('property1');
+          assertHintContent(prop1, element.T("This field is required."));
+          prop2 = element.getElement('property2');
+          assertHintContent(prop2, "");
+
+          isValid = element.validate(false);
+          assert.equal(isValid, false, "element is valid");
+          assertHintContent(element, "");
+
+          prop1 = element.getElement('property1');
+          assertHintContent(prop1, "");
+          prop2 = element.getElement('property2');
+          assertHintContent(prop2, "");
+          done();
+        }
+
+        var context = {
+          element: element,
+          renderedHandler: renderedHandler,
+          boundCheckRendered: checkRendered.bind(context)
+        };
+        setTimeout(checkRendered.bind(context), 100);
+
+      });
+    });
+
+    suite('autovalidate set as property', function() {
 
       function getSchema() {
         return {
@@ -57,15 +214,10 @@
         };
       }
 
-      function assertHintContent(element, expectedHint) {
-        var hint = Polymer.dom(element.$.hint);
-        assert.equal(hint.textContent, expectedHint, 'Error message not set correctly');
-      }
+      test('no autovalidate, do not show errors', function(done) {
+        var element = fixture('propertyTests');
 
-      suite('autovalidate set as attribute', function() {
-
-        test('no autovalidate, do not show errors', function() {
-          var element = fixture('noAutovalidate');
+        element.addEventListener('rendered', function(event) {
           element.required = true;
           element.value = {};
 
@@ -86,112 +238,16 @@
           assertHintContent(prop1, element.T("This field is required."));
           prop2 = element.getElement('property2');
           assertHintContent(prop2, "");
+
+          done();
         });
-
-        test('no autovalidate, do show errors', function() {
-          var element = fixture('noAutovalidate');
-          element.required = true;
-          element.value = {};
-
-          var isValid = element.validate(true);
-          assert.equal(isValid, false, "element is valid");
-          assertHintContent(element, "");
-
-          var prop1 = element.getElement('property1');
-          assertHintContent(prop1, element.T("This field is required."));
-          var prop2 = element.getElement('property2');
-          assertHintContent(prop2, "");
-
-          isValid = element.validate();
-          assert.equal(isValid, false, "element is valid");
-          assertHintContent(element, "");
-
-          prop1 = element.getElement('property1');
-          assertHintContent(prop1, "");
-          prop2 = element.getElement('property2');
-          assertHintContent(prop2, "");
-        });
-
-        test('autovalidate, do not show errors', function() {
-          var element = fixture('autovalidate');
-          element.required = true;
-          element.value = {};
-
-          var isValid = element.validate();
-          assert.equal(isValid, false, "element is valid");
-          assertHintContent(element, "");
-
-          var prop1 = element.getElement('property1');
-          assertHintContent(prop1, element.T("This field is required."));
-          var prop2 = element.getElement('property2');
-          assertHintContent(prop2, "");
-
-          isValid = element.validate(false);
-          assert.equal(isValid, false, "element is valid");
-          assertHintContent(element, "");
-
-          prop1 = element.getElement('property1');
-          assertHintContent(prop1, "");
-          prop2 = element.getElement('property2');
-          assertHintContent(prop2, "");
-        });
-
-        test('autovalidate, do show errors', function() {
-          var element = fixture('autovalidate');
-          element.required = true;
-          element.value = {};
-
-          var isValid = element.validate(true);
-          assert.equal(isValid, false, "element is valid");
-          assertHintContent(element, "");
-
-          prop1 = element.getElement('property1');
-          assertHintContent(prop1, element.T("This field is required."));
-          prop2 = element.getElement('property2');
-          assertHintContent(prop2, "");
-
-          isValid = element.validate(false);
-          assert.equal(isValid, false, "element is valid");
-          assertHintContent(element, "");
-
-          prop1 = element.getElement('property1');
-          assertHintContent(prop1, "");
-          prop2 = element.getElement('property2');
-          assertHintContent(prop2, "");
-        });
-
+        element.schema = getSchema();
       });
 
-      suite('autovalidate set as property', function() {
+      test('no autovalidate, do show errors', function(done) {
+        var element = fixture('propertyTests');
 
-        test('no autovalidate, do not show errors', function() {
-          var element = fixture('propertyTests');
-          element.schema = getSchema();
-          element.required = true;
-          element.value = {};
-
-          var isValid = element.validate();
-          assert.equal(isValid, false, "element is valid");
-          assertHintContent(element, "");
-
-          var prop1 = element.getElement('property1');
-          assertHintContent(prop1, "");
-          var prop2 = element.getElement('property2');
-          assertHintContent(prop2, "");
-
-          isValid = element.validate(true);
-          assert.equal(isValid, false, "element is valid");
-          assertHintContent(element, "");
-
-          prop1 = element.getElement('property1');
-          assertHintContent(prop1, element.T("This field is required."));
-          prop2 = element.getElement('property2');
-          assertHintContent(prop2, "");
-        });
-
-        test('no autovalidate, do show errors', function() {
-          var element = fixture('propertyTests');
-          element.schema = getSchema();
+        element.addEventListener('rendered', function(event) {
           element.required = true;
           element.value = {};
 
@@ -212,11 +268,16 @@
           assertHintContent(prop1, "");
           prop2 = element.getElement('property2');
           assertHintContent(prop2, "");
-        });
 
-        test('autovalidate, do not show errors', function() {
-          var element = fixture('propertyTests');
-          element.schema = getSchema();
+          done();
+        });
+        element.schema = getSchema();
+      });
+
+      test('autovalidate, do not show errors', function(done) {
+        var element = fixture('propertyTests');
+
+        element.addEventListener('rendered', function(event) {
           element.autoValidate = true;
           element.required = true;
           element.value = {};
@@ -238,11 +299,17 @@
           assertHintContent(prop1, "");
           prop2 = element.getElement('property2');
           assertHintContent(prop2, "");
+
+          done();
         });
 
-        test('autovalidate, do show errors', function() {
-          var element = fixture('propertyTests');
-          element.schema = getSchema();
+        element.schema = getSchema();
+      });
+
+      test('autovalidate, do show errors', function(done) {
+        var element = fixture('propertyTests');
+
+        element.addEventListener('rendered', function(event) {
           element.autoValidate = true;
           element.required = true;
           element.value = {};
@@ -264,8 +331,10 @@
           assertHintContent(prop1, "");
           prop2 = element.getElement('property2');
           assertHintContent(prop2, "");
+          done();
         });
 
+        element.schema = getSchema();
       });
 
     });

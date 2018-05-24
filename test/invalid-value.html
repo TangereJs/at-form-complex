@@ -54,119 +54,140 @@
 
       test('value is undefined', function() {
         var elt = fixture('propertyTests');
+        
+        elt.addEventListener('rendered', function() {
+          elt.value = undefined;
+
+          assert.deepEqual(elt.value, undefined);
+
+          elt._updateValueObject('property1', "lorem ipsum");
+
+          assert.deepEqual(elt.value, getData());
+        });
+
         elt.schema = getSchema();
-
-        elt.value = undefined;
-
-        assert.deepEqual(elt.value, undefined);
-
-        elt._updateValueObject('property1', "lorem ipsum");
-
-        assert.deepEqual(elt.value, getData());
       });
 
       test('value is null', function() {
         var elt = fixture('propertyTests');
+        
+        elt.addEventListener('rendered', function() {
+          elt.value = null;
+
+          assert.deepEqual(elt.value, null);
+
+          elt._updateValueObject('property1', "lorem ipsum");
+
+          assert.deepEqual(elt.value, getData());
+        });
+
         elt.schema = getSchema();
-
-        elt.value = null;
-
-        assert.deepEqual(elt.value, null);
-
-        elt._updateValueObject('property1', "lorem ipsum");
-
-        assert.deepEqual(elt.value, getData());
       });
 
       test('value is false', function() {
         var elt = fixture('propertyTests');
+
+        elt.addEventListener('rendered', function() { 
+          elt.value = false;
+
+          assert.deepEqual(elt.value, false);
+
+          elt._updateValueObject('property1', "lorem ipsum");
+
+          assert.deepEqual(elt.value, getData());
+        });
+
         elt.schema = getSchema();
-
-        elt.value = false;
-
-        assert.deepEqual(elt.value, false);
-
-        elt._updateValueObject('property1', "lorem ipsum");
-
-        assert.deepEqual(elt.value, getData());
       });
 
       test('value is true', function() {
         var elt = fixture('propertyTests');
+        elt.addEventListener('rendered', function() {
+          elt.value = true;
+
+          assert.deepEqual(elt.value, true);
+
+          elt._updateValueObject('property1', "lorem ipsum");
+
+          assert.deepEqual(elt.value, getData());
+        });
+
         elt.schema = getSchema();
-
-        elt.value = true;
-
-        assert.deepEqual(elt.value, true);
-
-        elt._updateValueObject('property1', "lorem ipsum");
-
-        assert.deepEqual(elt.value, getData());
       });
 
       test('value is -42', function() {
         var elt = fixture('propertyTests');
+        elt.addEventListener('rendered', function() { 
+          elt.value = -42;
+
+          assert.deepEqual(elt.value, -42);
+
+          elt._updateValueObject('property1', "lorem ipsum");
+
+          assert.deepEqual(elt.value, getData());
+        });
+
         elt.schema = getSchema();
-
-        elt.value = -42;
-
-        assert.deepEqual(elt.value, -42);
-
-        elt._updateValueObject('property1', "lorem ipsum");
-
-        assert.deepEqual(elt.value, getData());
       });
 
       test('value is 0', function() {
         var elt = fixture('propertyTests');
+        elt.addEventListener('rendered', function() { 
+          elt.value = 0;
+
+          assert.deepEqual(elt.value, 0);
+
+          elt._updateValueObject('property1', "lorem ipsum");
+
+          assert.deepEqual(elt.value, getData());
+        });
+
         elt.schema = getSchema();
-
-        elt.value = 0;
-
-        assert.deepEqual(elt.value, 0);
-
-        elt._updateValueObject('property1', "lorem ipsum");
-
-        assert.deepEqual(elt.value, getData());
       });
 
       test('value is empty string', function() {
         var elt = fixture('propertyTests');
+        elt.addEventListener('rendered', function() { 
+          elt.value = "";
+
+          assert.deepEqual(elt.value, "");
+
+          elt._updateValueObject('property1', "lorem ipsum");
+
+          assert.deepEqual(elt.value, getData());
+        });
+
         elt.schema = getSchema();
-
-        elt.value = "";
-
-        assert.deepEqual(elt.value, "");
-
-        elt._updateValueObject('property1', "lorem ipsum");
-
-        assert.deepEqual(elt.value, getData());
       });      
 
       test('value is invalid json string', function() {
         var elt = fixture('propertyTests');
+        elt.addEventListener('rendered', function() { 
+          elt.value = "lorem ipsum";
+
+          assert.deepEqual(elt.value, "lorem ipsum");
+
+          elt._updateValueObject('property1', "lorem ipsum");
+
+          assert.deepEqual(elt.value, getData());
+        });
+
         elt.schema = getSchema();
-
-        elt.value = "lorem ipsum";
-
-        assert.deepEqual(elt.value, "lorem ipsum");
-
-        elt._updateValueObject('property1', "lorem ipsum");
-
-        assert.deepEqual(elt.value, getData());
       });
 
       test('value is empty array', function() {
         var elt = fixture('propertyTests');
+        elt.addEventListener('rendered', function() { 
+          elt.value = [];
+
+          assert.deepEqual(elt.value, []);
+
+          elt._updateValueObject('property1', "lorem ipsum");
+
+          assert.deepEqual(elt.value, getData());
+        });
+
         elt.schema = getSchema();
-
-        elt.value = [];
-
-        assert.deepEqual(elt.value, []);
-
-        elt._updateValueObject('property1', "lorem ipsum");
-
-        assert.deepEqual(elt.value, getData());
       });
 
     });

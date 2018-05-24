@@ -260,6 +260,9 @@
         // ------------------------------------------------------------
         self._unsupported_types = ["object"];
       }
+      
+      // NOTE This flag is support for test suite when schema is set as attribute
+      this.__rendered__ = false;
 
       // clear the previous html content in the container
       Polymer.dom(this.$.insertPoint).innerHTML = "";
@@ -506,6 +509,8 @@
       // at-form-complex needs to reflect that state
       this.validate();
 
+      // NOTE This flag is support for test suite when schema is set as attribute
+      this.__rendered__ = true;
       this.fire('rendered', this, { bubbles: false });
     },
 
