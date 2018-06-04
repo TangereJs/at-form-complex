@@ -55,8 +55,7 @@
     }
 
     suite('autovalidate set as attribute', function() {
-
-      test('no autovalidate, do not show errors', function() {
+      test('no autovalidate, do not show errors', function(done) {
         var element = fixture('noAutovalidate');
 
         function renderedHandler() {
@@ -80,6 +79,8 @@
           assertHintContent(prop1, element.T("This field is required."));
           prop2 = element.getElement('property2');
           assertHintContent(prop2, "");
+
+          done();
         }
 
         var context = {
@@ -90,7 +91,7 @@
         setTimeout(checkRendered.bind(context), 100);
       });
 
-      test('no autovalidate, do show errors', function() {
+      test('no autovalidate, do show errors', function(done) {
         var element = fixture('noAutovalidate');
 
         function renderedHandler() {
@@ -114,6 +115,8 @@
           assertHintContent(prop1, "");
           prop2 = element.getElement('property2');
           assertHintContent(prop2, "");
+
+          done();
         }
 
         var context = {

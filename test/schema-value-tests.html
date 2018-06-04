@@ -263,7 +263,7 @@
       });
 
       test('schema is string, data is object', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         formComplex.addEventListener('rendered', function(event) {
           // internalData must have entries for each element
@@ -328,7 +328,7 @@
       });
 
       test('schema is object, data is string', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         formComplex.addEventListener('rendered', function(event) {
           // internalData must have entries for each element
@@ -393,7 +393,7 @@
       });
 
       test('schema is object, data is object', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         formComplex.addEventListener('rendered', function(event) {
           // internalData must have entries for each element
@@ -512,7 +512,7 @@
       var stringData = JSON.stringify(getData());
 
       test('schema is string, data is string', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         var eventCount = 0;
         formComplex.addEventListener('value-changed', function(event) {
@@ -568,7 +568,7 @@
       });
 
       test('schema is string, data is object', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         var eventCount = 0;
         formComplex.addEventListener('value-changed', function(event) {
@@ -624,7 +624,7 @@
       });
 
       test('schema is object, data is string', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         var eventCount = 0;
         formComplex.addEventListener('value-changed', function(event) {
@@ -679,7 +679,7 @@
       });
 
       test('schema is object, data is object', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         var eventCount = 0;
         formComplex.addEventListener('value-changed', function(event) {
@@ -734,7 +734,7 @@
       });
 
       test('schema is object, data is object, set value for individual elements', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         var eventCount = 0;
         formComplex.addEventListener('value-changed', function(event) {
@@ -866,7 +866,7 @@
       }
 
       test('schema is object, data is object, schema first data second, set value for individual elements', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         var eventCount = 0;
         formComplex.addEventListener('value-changed', function(event) {
@@ -965,7 +965,7 @@
       });
 
       test('schema is object, data is object, data first, schema second, set value for individual elements', function(done) {
-        var formComplex = document.createElement('at-form-complex');
+        var formComplex = fixture('propertyTests');
 
         var eventCount = 0;
         formComplex.addEventListener('value-changed', function(event) {
