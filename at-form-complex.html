@@ -553,6 +553,8 @@
     },
 
     _executeRuleEvaluation: function(schema) {
+      if (!this.__rendered__) return;
+      
       var _sh = window.schemaHelpers;
       if (this._isBusinessRulesEvaluationInProgress) {
         return;
