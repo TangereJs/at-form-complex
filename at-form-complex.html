@@ -473,7 +473,7 @@
           } else {
             // else set initial value from at-form-complex.data to fromElement
             if (typeof self._internalData[propertyName] !== 'object') {
-              self._internalData[propertyName] = fieldElement.value;
+              fieldElement.value = self._internalData[propertyName];
 
             } else {
               fieldElement.value = JSON.parse(JSON.stringify(self._internalData[propertyName]));
