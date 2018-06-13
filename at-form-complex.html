@@ -371,6 +371,24 @@
 
     },
 
+    /**
+     * This function iterates over property definitions and checks if any of the definitions has xgridcols property 
+     * If at least one property has xgridcols function returns true. Otherwise it returns false
+     * 
+     * This function replaces previous schemaJsonsStr.indexOf('xgridcols') method because at-form-modal modifies the schema to support its .wide feature
+     */
+    _schmeaUsesXgridCols: function(propDefs) {
+      var result = false;
+
+      for (var i = 0; i < propDefs.length && !result; i++) {
+        var propDef = propDefs[i];
+        var hasxgridcols = propDef.hasOwnProperty('xgridcols');
+        result = reuslt || hasxgridcols;
+      }
+
+      return result;
+    },
+
     _renderSchema: function(propertyNames, propDefs) {
       var self = this;
       var _sh = window.schemaHelpers;
@@ -383,14 +401,17 @@
       var displayType; // type of the property; translates to a coresponding element
       var fieldContainer; // at-form-complex class="field" wrapper for formElement
       var fieldElement; // holds a reference to a newly created element
-      var usexgridCols = false;
-
+      
       // FIXME: why usexgridCols exists? what is its purpose?
-      var propertiesJsonStr = JSON.stringify(propDefs);
-      usexgridCols = propertiesJsonStr.indexOf("xgridcols") !== -1;
+      var usexgridCols = this._schmeaUsesXgridCols(propDefs);
+
       var insertPoint = this.$.insertPoint;
       if (!usexgridCols) {
         Polymer.dom(insertPoint).classList.add('layout');
+        
+        // schema rendering is now async, so _layoutChanged has to be explicitly called here for _layout to be applied correctly
+        this._layoutChanged(this._layout);
+
       } else {
         Polymer.dom(insertPoint).classList.remove('layout');
         Polymer.dom(insertPoint).classList.remove('horizontal');
