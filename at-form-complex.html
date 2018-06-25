@@ -19,7 +19,7 @@
       }
 
       :host {
-        @apply(--at-form-host);
+        @apply --at-form-host;
       }
 
       #insertPoint.layout.horizontal :first-child {
@@ -212,6 +212,42 @@
       this._isReady = true;
     },
 
+    // map legacy xtypes
+    // this list is also in at-form-complex and at-core-dashboard
+    // DO NOT EXTEND THIS LIST; for new elements xtype should be the element name, so there is no need to new elements to be in this list
+    _displayTypeToFormElementMapping: {
+      array: "at-form-array",
+      boolean: "at-form-checkbox",
+      toggle: "at-form-checkbox",
+      code: "at-form-codemirror",
+      json: "at-form-codemirror",
+      object: "at-form-complex",
+      date: "at-form-date",
+      time: "at-form-date",
+      datetime: "at-form-date",
+      daterange: "at-form-daterange",
+      file: "at-form-file",
+      html: "at-form-html",
+      image: "at-form-image",
+      'enum': "at-form-lookup",
+      lookup: "at-form-lookup",
+      marked: "at-form-markdown",
+      password: "at-form-password",
+      number: "at-form-number",
+      radio: "at-form-radio",
+      section: "at-form-section",
+      state: "at-form-state",
+      string: "at-form-text",
+      textarea: "at-form-textarea",
+      cron: "at-form-cron",
+      random: "at-form-random"
+    },
+
+    _getElementName: function(displayType) {
+      var elementName = this._displayTypeToFormElementMapping[displayType];
+      return elementName;
+    },
+
     _schemaChanged: function(newValue, odlValue) {
       var _sh = window.schemaHelpers;
 
@@ -261,7 +297,7 @@
         self._unsupported_types = ["object"];
       }
       
-      // NOTE This flag is support for test suite when schema is set as attribute
+      // NOTE This flag tells when form complex has completed rendering all the elements
       this.__rendered__ = false;
 
       // clear the previous html content in the container
@@ -274,54 +310,21 @@
       if (propNames.length === 0) return;
 
       // figure out what needs to be imported
-      _sh.initializeCentralArrayOfComponents();
       var notImportedElements = [];
 
       propNames.forEach(function(propName) {
         var propDef = properties[propName];
         var displayType = _sh.getDisplayType(propDef, self._unsupported_types);
-        var mapping = _sh.findMapping(displayType);
 
         // propDef.default !== window is added to hanlde cases from polymer behaviors
         // where initial value for properities is window
-        if (!mapping && propDef.default !== window) {
+        if (propDef.default !== window) {
           // element is not loaded; scheadule it for importHref
           var scheduledPropDef = JSON.parse(JSON.stringify(propDef));
           scheduledPropDef.displayType = displayType;
           notImportedElements.push(scheduledPropDef);
         }
       });
-
-      // map legacy xtypes
-      // this list is also in at-core-form and at-core-dashboard
-      var displayTypeToFormElementMapping = {
-        array: "at-form-array",
-        boolean: "at-form-checkbox",
-        toggle: "at-form-checkbox",
-        code: "at-form-codemirror",
-        json: "at-form-codemirror",
-        object: "at-form-complex",
-        date: "at-form-date",
-        time: "at-form-date",
-        datetime: "at-form-date",
-        daterange: "at-form-daterange",
-        file: "at-form-file",
-        html: "at-form-html",
-        image: "at-form-image",
-        'enum': "at-form-lookup",
-        lookup: "at-form-lookup",
-        marked: "at-form-markdown",
-        password: "at-form-password",
-        number: "at-form-number",
-        radio: "at-form-radio",
-        section: "at-form-section",
-        state: "at-form-state",
-        string: "at-form-text",
-        textarea: "at-form-textarea",
-        cron: "at-form-cron",
-        random: "at-form-random",
-        checkboxlist: "at-form-checkbox-list"
-      };
 
       if (!notImportedElements.length) {
         this._renderSchema(propNames, properties);
@@ -337,7 +340,7 @@
         // So, to dynamically importHref needed elements we need to introduce static information (which will just be a copy paste from $meta of each element)
 
         var displayType = propDef.displayType;
-        var elementName = displayTypeToFormElementMapping[displayType];
+        var elementName = self._getElementName(displayType);
         if (elementName == undefined) { elementName = displayType; }
 
         if (!elementName) {
@@ -447,7 +450,10 @@
 
         Polymer.dom(fieldContainer).classList.add(gridColsCssName);
 
-        fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition);
+        var elementName = self._getElementName(displayType);
+        if (elementName === undefined) elementName = displayType;
+
+        fieldElement = schemaHelpers.createElement(propertyName, displayType, propertyDefinition, elementName);
 
         if (fieldElement.is === "at-form-checkbox") {
           fieldContainer.classList.add('at-form-checkbox');
@@ -457,10 +463,21 @@
           if (!self._internalData.hasOwnProperty(propertyName)) {
             // at-form-complex._internalData doesn't contain an entry for the current property
             // add initial value of the formElement to the at-form-complex.data
-            self._internalData[propertyName] = JSON.parse(JSON.stringify(fieldElement.value));
+            if (typeof fieldElement.value !== "object") {
+              self._internalData[propertyName] = fieldElement.value;
+            
+            } else {
+              self._internalData[propertyName] = JSON.parse(JSON.stringify(fieldElement.value));
+            }
+
           } else {
             // else set initial value from at-form-complex.data to fromElement
-            fieldElement.value = JSON.parse(JSON.stringify(self._internalData[propertyName]));
+            if (typeof self._internalData[propertyName] !== 'object') {
+              fieldElement.value = self._internalData[propertyName];
+
+            } else {
+              fieldElement.value = JSON.parse(JSON.stringify(self._internalData[propertyName]));
+            }
           }
         }
 
@@ -530,12 +547,12 @@
       // at-form-complex needs to reflect that state
       this.validate();
 
-      // NOTE This flag is support for test suite when schema is set as attribute
+      // NOTE This flag tells when form complex has completed rendering all the elements
       this.__rendered__ = true;
       this.fire('rendered', this, { bubbles: false });
     },
 
-    _executeRuleEvaluation: function(schema) {
+    _executeRuleEvaluation: function(schema, isRendered) {
       var _sh = window.schemaHelpers;
       if (this._isBusinessRulesEvaluationInProgress) {
         return;
@@ -630,6 +647,8 @@
     },
 
     getElement: function(elementId) {
+      if (!this.$) return null;
+
       var fieldsContainer = this.$.insertPoint;
       var selector = '#' + elementId;
       var fieldElement = Polymer.dom(fieldsContainer).querySelector(selector);
@@ -706,7 +725,7 @@
         }
       });
 
-      if (_sh.isObject(this.schema) && _sh.isObject(this.schema.properties) && Object.keys(this.schema.properties).length) {
+      if (!this._isSchemaEmpty(this.schema) && this.__rendered__) {
         self._executeRuleEvaluation(this.schema);
       }
 
@@ -899,6 +918,14 @@
           callback(fieldElement);
         }
       });
+    },
+
+    _isSchemaEmpty: function(schema) {
+      if (!schemaHelpers.isObject(schema)) return true;
+      if (!schemaHelpers.isObject(schema.properties)) return true;
+      var propLen = Object.keys(schema.properties).length;
+      if (propLen === 0) return true;
+      return false;
     }
   });
 </script>
