@@ -58,6 +58,10 @@
       .horizontal .form-element.at-form-checkbox {
         min-height: 32px;
       }
+
+      .col-12.at-form-section {
+        min-height: unset;
+      }
     </style>
     <div id="atContainer" class="at-container">
       <iron-label id="label">{{label}}</iron-label>
@@ -457,6 +461,12 @@
 
         if (fieldElement.is === "at-form-checkbox") {
           fieldContainer.classList.add('at-form-checkbox');
+        }
+
+        // special handling for at-form-section; at-form-section should have .mt class from at-core-style-classes and min-height value of unset
+        if (fieldElement.tagName.toLowerCase() == "at-form-section") {
+          Polymer.dom(fieldContainer).classList.add("at-form-section");
+          Polymer.dom(fieldContainer).classList.add("mt");
         }
 
         if (displayType !== "section") {
