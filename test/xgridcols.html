@@ -1,0 +1,253 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>at-form-complex tests</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../iron-test-helpers/test-helpers.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
+  <link rel="import" href="../at-form-complex.html">
+</head>
+
+<body>
+
+  <test-fixture id="noxgridcols">
+    <template>
+      <at-form-complex schema='{ "properties": { "property1": { "type": "string" }, "property2": { "type": "string", "default": "lorem ipsum" }, "property3": { "type": "string", "default": "lorem ipsum" } } }'></at-form-complex>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="xgridcols">
+    <template>
+      <at-form-complex schema='{ "properties": { "property1": { "type": "string", "xgridcols": "6" }, "property2": { "type": "string", "default": "lorem ipsum", "xgridcols": "6" }, "property3": { "type": "string", "default": "lorem ipsum", "xgridcols": "12" } } }'></at-form-complex>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="propertyTests">
+    <template>
+      <at-form-complex></at-form-complex>
+    </template>
+  </test-fixture>
+
+  <script>
+    function assertHintContent(element, expectedHint) {
+      var hint = Polymer.dom(element.$.hint);
+      assert.equal(hint.textContent, expectedHint, 'Error message not set correctly');
+    }
+
+    function checkRendered() {
+      if (this.element.__rendered__) {
+        this.renderedHandler();
+        return;
+      }
+
+      setTimeout(this.boundCheckRendered, 100);
+    }
+
+    suite('xgridcols in schema set as attribute', function() {
+      var schema = {
+        properties: {
+          property1: {
+            type: "string"
+          },
+          property2: {
+            type: "string",
+            "default": "lorem ipsum"
+          },
+          property3: {
+            type: "string",
+            "default": "lorem ipsum"
+          }
+        }
+      };
+
+      var schemaWithXgridcols = {
+        properties: {
+          property1: {
+            type: "string",
+            xgridcols: "6"
+          },
+          property2: {
+            type: "string",
+            "default": "lorem ipsum",
+            xgridcols: "6"
+          },
+          property3: {
+            type: "string",
+            "default": "lorem ipsum",
+            xgridcols: "12"
+          }
+        }
+      };
+
+      test('when xgridcols is not set', function(done) {
+        var element = fixture('noxgridcols');
+
+        function renderedHandler() {
+          assert.deepEqual(element.schema, schema);
+
+          // insertPoint should have layout and vertical classes
+          assert.equal(element.$.insertPoint.classList.contains('layout'), true);
+          assert.equal(element.$.insertPoint.classList.contains('vertical'), true);
+
+          // individual elements should have flex class
+          var propNames = Object.keys(schema.properties);
+          propNames.forEach(function(propName) {
+            var propElt = element.getElement(propName);
+            var propEltContainer = propElt.parentElement;
+
+            assert.equal(propEltContainer.classList.contains('col-6'), true);
+          });
+
+          done();
+        }
+
+        var context = {
+          element: element,
+          renderedHandler: renderedHandler,
+          boundCheckRendered: checkRendered.bind(context)
+        };
+        setTimeout(checkRendered.bind(context), 100);
+      });
+
+      test('when xgridcols is set', function(done) {
+        var element = fixture('xgridcols');
+
+        function renderedHandler() {
+          assert.deepEqual(element.schema, schemaWithXgridcols);
+
+          // insertPoint should not have layout and horizontal classes
+          assert.equal(element.$.insertPoint.classList.contains('layout'), false);
+          assert.equal(element.$.insertPoint.classList.contains('vertical'), false);
+          assert.equal(element.$.insertPoint.classList.contains('horizontal'), false);
+
+          // individual elements should have flex class
+          var propNames = Object.keys(schema.properties);
+          propNames.forEach(function(propName) {
+            var propElt = element.getElement(propName);
+            var propEltContainer = propElt.parentElement;
+
+            var propEltDef = schemaWithXgridcols.properties[propName];
+            var xgridcolsVal = propEltDef.xgridcols;
+            var className = "col-" + xgridcolsVal;
+
+            assert.equal(propEltContainer.classList.contains(className), true);
+          });
+
+          done();
+        }
+
+        var context = {
+          element: element,
+          renderedHandler: renderedHandler,
+          boundCheckRendered: checkRendered.bind(context)
+        };
+        setTimeout(checkRendered.bind(context), 100);
+      });
+
+    });
+
+    suite('xgridcols in schema set as property', function() {
+
+      function getSchema() {
+        return {
+          properties: {
+            property1: {
+              type: "string",
+            },
+            property2: {
+              type: "string",
+              "default": "lorem ipsum",
+            },
+            property3: {
+              type: "string",
+            }
+          }
+        };
+      }
+
+      function getSchemaWithXgridcols() {
+        return {
+          properties: {
+            property1: {
+              type: "string",
+              xgridcols: 6
+            },
+            property2: {
+              type: "string",
+              "default": "lorem ipsum",
+              xgridcols: 6
+            },
+            property3: {
+              type: "string",
+              xgridcols: 12
+            }
+          }
+        };
+      }
+
+      test('when xgridcols is not set', function(done) {
+        var element = fixture('propertyTests');
+
+        element.addEventListener('rendered', function(event) {
+          assert.deepEqual(element.schema, getSchema());
+
+          // insertPoint should have layout and vertical classes
+          assert.equal(element.$.insertPoint.classList.contains('layout'), true);
+          assert.equal(element.$.insertPoint.classList.contains('vertical'), true);
+
+          // individual elements should have flex class
+          var propNames = Object.keys(getSchema().properties);
+          propNames.forEach(function(propName) {
+            var propElt = element.getElement(propName);
+            var propEltContainer = propElt.parentElement;
+
+            assert.equal(propEltContainer.classList.contains('col-6'), true);
+          });
+
+
+          done();
+        });
+        element.schema = getSchema();
+      });
+
+      test('when xgridcols is set', function(done) {
+        var element = fixture('propertyTests');
+
+        element.addEventListener('rendered', function(event) {
+          assert.deepEqual(element.schema, getSchemaWithXgridcols());
+
+          // insertPoint should not have layout and horizontal classes
+          assert.equal(element.$.insertPoint.classList.contains('layout'), false);
+          assert.equal(element.$.insertPoint.classList.contains('vertical'), false);
+          assert.equal(element.$.insertPoint.classList.contains('horizontal'), false);
+
+          var schemaWithXgridcols = getSchemaWithXgridcols();
+
+          // individual elements should have flex class
+          var propNames = Object.keys(schemaWithXgridcols.properties);
+          propNames.forEach(function(propName) {
+            var propElt = element.getElement(propName);
+            var propEltContainer = propElt.parentElement;
+
+            var propEltDef = schemaWithXgridcols.properties[propName];
+            var xgridcolsVal = propEltDef.xgridcols;
+            var className = "col-" + xgridcolsVal;
+
+            assert.equal(propEltContainer.classList.contains(className), true);
+          });
+
+          done();
+        });
+        element.schema = getSchemaWithXgridcols();
+      });
+    });
+  </script>
+
+</body>
+
+</html>
