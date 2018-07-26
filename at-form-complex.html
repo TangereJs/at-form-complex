@@ -380,13 +380,14 @@
      * 
      * This function replaces previous schemaJsonsStr.indexOf('xgridcols') method because at-form-modal modifies the schema to support its .wide feature
      */
-    _schmeaUsesXgridCols: function(propDefs) {
+    _schemaUsesXgridCols: function(propertyNames, propDefs) {
       var result = false;
 
-      for (var i = 0; i < propDefs.length && !result; i++) {
-        var propDef = propDefs[i];
+      for (var i = 0; i < propertyNames.length && !result; i++) {
+        var propName = propertyNames[i];
+        var propDef = propDefs[propName];
         var hasxgridcols = propDef.hasOwnProperty('xgridcols');
-        result = reuslt || hasxgridcols;
+        result = result || hasxgridcols;
       }
 
       return result;
@@ -406,7 +407,7 @@
       var fieldElement; // holds a reference to a newly created element
       
       // FIXME: why usexgridCols exists? what is its purpose?
-      var usexgridCols = this._schmeaUsesXgridCols(propDefs);
+      var usexgridCols = this._schemaUsesXgridCols(propertyNames, propDefs);
 
       var insertPoint = this.$.insertPoint;
       if (!usexgridCols) {
