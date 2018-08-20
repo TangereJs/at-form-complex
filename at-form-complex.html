@@ -7,6 +7,7 @@
 <link rel="import" href="../at-form-behaviors/at-form-behaviors-rules-evaluation.html">
 <link rel="import" href="../iron-label/iron-label.html">
 <link rel="import" href="../at-core-view/at-core-view.html">
+<link rel="import" href="../at-core-resize-sensor/at-core-resize-sensor.html">
 
 <dom-module id="at-form-complex">
   <template>
@@ -20,6 +21,14 @@
 
       :host {
         @apply --at-form-host;
+      }
+
+      .wrapper {
+        position: relative;
+      }
+
+      .clear-float {
+        clear: both;
       }
 
       #insertPoint.layout.horizontal :first-child {
@@ -59,17 +68,24 @@
         min-height: 32px;
       }
     </style>
-    <div id="atContainer" class="at-container">
-      <iron-label id="label">{{label}}</iron-label>
-      <template is="dom-if" if="{{label}}" on-dom-change="_handleLabelHrDomChange">
-        <hr id="labelHr">
-      </template>
-      <div id="contentContainer" class="at-content-container">
-        <div id="insertPoint"></div>
-        <at-core-view id="placeholder" view="[[placeholder]]" hidden></at-core-view>
+    <div class="wrapper">
+      <at-core-resize-sensor id="resizeSensor" on-resize-sensed="_handleResizeSensed"></at-core-resize-sensor>
+      <div class="clear-float"></div>
+      <div>
+        <div id="atContainer" class="at-container">
+          <iron-label id="label">{{label}}</iron-label>
+          <template is="dom-if" if="{{label}}" on-dom-change="_handleLabelHrDomChange">
+            <hr id="labelHr">
+          </template>
+          <div id="contentContainer" class="at-content-container">
+            <div id="insertPoint"></div>
+            <at-core-view id="placeholder" view="[[placeholder]]" hidden></at-core-view>
+          </div>
+          <div id="hint"></div>
+        </div>
       </div>
-      <div id="hint"></div>
     </div>
+
   </template>
 </dom-module>
 
@@ -170,15 +186,13 @@
       },
 
       /**
-       * _layout <br>
-       * added as support for rendering rows in at-form-array <br>
-       * _layout = horizontal lays out elements in a horizontal line <br>
-       * _layout = vertical lays out elements in a single vertical column <br>
-       * @property _layout
+       * Controls the layout of the rendered elements
+       * 
+       * @property layout
        * @type String
        * @default vertical
        */
-      _layout: {
+      layout: {
         type: String,
         value: 'vertical',
         observer: '_layoutChanged',
@@ -205,6 +219,24 @@
       var labelHr = this.$$('#labelHr');
       if (labelHr) {
         this.toggleClass("hidden", hideLabel, labelHr);
+      }
+    },
+
+    _handleResizeSensed: function(event) {
+      var newWidth = event.detail.value.width;
+      this._updateLayoutForWidth(newWidth);
+    },
+    
+    _updateLayoutForWidth: function(newWidth) {
+      if (isNaN(newWidth)) return;
+      if (this._isFormArrayRow) return;
+      if (!this.__rendered__) return;
+
+      if (newWidth < 600) {
+        this.layout = "vertical";
+      
+      } else {
+        this.layout = "horizontal";
       }
     },
 
@@ -296,7 +328,7 @@
         // ------------------------------------------------------------
         self._unsupported_types = ["object"];
       }
-      
+
       // NOTE This flag tells when form complex has completed rendering all the elements
       this.__rendered__ = false;
 
@@ -374,25 +406,6 @@
 
     },
 
-    /**
-     * This function iterates over property definitions and checks if any of the definitions has xgridcols property 
-     * If at least one property has xgridcols function returns true. Otherwise it returns false
-     * 
-     * This function replaces previous schemaJsonsStr.indexOf('xgridcols') method because at-form-modal modifies the schema to support its .wide feature
-     */
-    _schemaUsesXgridCols: function(propertyNames, propDefs) {
-      var result = false;
-
-      for (var i = 0; i < propertyNames.length && !result; i++) {
-        var propName = propertyNames[i];
-        var propDef = propDefs[propName];
-        var hasxgridcols = propDef.hasOwnProperty('xgridcols');
-        result = result || hasxgridcols;
-      }
-
-      return result;
-    },
-
     _renderSchema: function(propertyNames, propDefs) {
       var self = this;
       var _sh = window.schemaHelpers;
@@ -405,21 +418,12 @@
       var displayType; // type of the property; translates to a coresponding element
       var fieldContainer; // at-form-complex class="field" wrapper for formElement
       var fieldElement; // holds a reference to a newly created element
-      
-      // FIXME: why usexgridCols exists? what is its purpose?
-      var usexgridCols = this._schemaUsesXgridCols(propertyNames, propDefs);
 
       var insertPoint = this.$.insertPoint;
-      if (!usexgridCols) {
-        Polymer.dom(insertPoint).classList.add('layout');
-        
-        // schema rendering is now async, so _layoutChanged has to be explicitly called here for _layout to be applied correctly
-        this._layoutChanged(this._layout);
 
-      } else {
-        Polymer.dom(insertPoint).classList.remove('layout');
-        Polymer.dom(insertPoint).classList.remove('horizontal');
-        Polymer.dom(insertPoint).classList.remove('vertical');
+      if (this._isFormArrayRow) {
+        Polymer.dom(insertPoint).classList.add('layout');
+        Polymer.dom(insertPoint).classList.add(this.layout);
       }
 
       propertyNames.forEach(function(propertyName) {
@@ -435,18 +439,17 @@
 
         displayType = schemaHelpers.getDisplayType(propertyDefinition, self._unsupported_types);
 
-        // handle xgridcols
-        var xgridcols = displayType === "section" ? 12 : 6;
-        if (_sh.isString(propertyDefinition.xgridcols) || _sh.isNumber(propertyDefinition.xgridcols)) {
-          xgridcols = parseInt(propertyDefinition.xgridcols);
-        }
-
         fieldContainer = divPrototype.cloneNode(true);
         Polymer.dom(fieldContainer).classList.add('form-element');
-        var gridColsCssName = "col-" + xgridcols;
-        if (!usexgridCols && self._layout === "horizontal") {
-          // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
-          gridColsCssName = "flex";
+
+        var gridColsCssName = "flex";
+        if (!self._isFormArrayRow) {
+          // handle xgridcols
+          var xgridcols = displayType === "section" ? 12 : 6;
+          if (_sh.isString(propertyDefinition.xgridcols) || _sh.isNumber(propertyDefinition.xgridcols)) {
+            xgridcols = parseInt(propertyDefinition.xgridcols);
+          }
+          gridColsCssName = "col-" + xgridcols;
         }
 
         Polymer.dom(fieldContainer).classList.add(gridColsCssName);
@@ -471,7 +474,7 @@
             // add initial value of the formElement to the at-form-complex.data
             if (typeof fieldElement.value !== "object") {
               self._internalData[propertyName] = fieldElement.value;
-            
+
             } else {
               self._internalData[propertyName] = JSON.parse(JSON.stringify(fieldElement.value));
             }
@@ -508,10 +511,6 @@
         Polymer.dom(fieldElement).setAttribute('id', propertyName);
         self._elementsToValidate.push(fieldElement);
 
-        // *ij* support for layout
-        // if layout === horizontal new elements have hidden labels
-        fieldElement.hideLabel = propertyDefinition.hideLabel || self._layout === 'horizontal';
-
         // if at-form-complex is initially hidden, element should be hidden as well
         fieldElement.hide = self.hide || _sh.parseBool(propertyDefinition.hide);
         // added for AT-214; when element is hidden, fieldContainer for that element should be hidden as well
@@ -543,7 +542,7 @@
       }
 
       Polymer.dom(self.$.insertPoint).appendChild(fieldsFragment);
-      Polymer.dom(this.$.placeholder).setAttribute('hidden', '');
+      Polymer.dom(self.$.placeholder).setAttribute('hidden', '');
       // evaluate rules against new schema
       if (propertyNames.length) {
         self._executeRuleEvaluation(this.schema);
@@ -552,10 +551,26 @@
       // if any element is required in schema its valid state is updated after creation
       // at-form-complex needs to reflect that state
       this.validate();
+      
+      Polymer.dom.flush();
+      this.$.resizeSensor.reset();
+      var currentWidth = this.$.resizeSensor.queryWidth();
+      if (!isNaN(currentWidth)) {
+        this._updateLayoutForWidth(currentWidth);
+      }
 
       // NOTE This flag tells when form complex has completed rendering all the elements
       this.__rendered__ = true;
       this.fire('rendered', this, { bubbles: false });
+    },
+
+    attached: function() {
+      Polymer.dom.flush();
+      this.$.resizeSensor.reset();
+      
+      var currentWidth = this.$.resizeSensor.queryWidth();
+      if (isNaN(currentWidth)) return;
+      this._updateLayoutForWidth(currentWidth);
     },
 
     _executeRuleEvaluation: function(schema, isRendered) {
@@ -863,23 +878,11 @@
      */
     _layoutChanged: function(newValue, oldValue) {
       var fieldsContainer = this.$.insertPoint;
-      var hasLayout = fieldsContainer.classList.contains('layout');
+      var isVertical = newValue === "vertical";
 
-      if (newValue === 'horizontal') {
-        this.toggleClass('horizontal', hasLayout && true, fieldsContainer);
-        this.toggleClass('vertical', false, fieldsContainer);
-        this.hideLabelsForElements();
-
-        // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
-        this.addFlexClassToElements();
-
-      } else if (newValue === 'vertical') {
-        this.toggleClass('horizontal', false, fieldsContainer);
-        this.toggleClass('vertical', hasLayout && true, fieldsContainer);
-        this.showLabelsForElements();
-
-        // we add flex only for horizontal layout, because flex in vertical layout breaks min-height rule
-        this.removeFlexClassFromElements();
+      this.toggleClass("vertical", isVertical, fieldsContainer);
+      if (this._isFormArrayRow) {
+        this.toggleClass("horizontal", !isVertical, fieldsContainer);
       }
     },
     /**
