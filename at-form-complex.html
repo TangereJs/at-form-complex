@@ -511,6 +511,8 @@
         Polymer.dom(fieldElement).setAttribute('id', propertyName);
         self._elementsToValidate.push(fieldElement);
 
+        fieldElement.hideLabel = self._isFormArrayRow && self.layout == "horizontal";
+
         // if at-form-complex is initially hidden, element should be hidden as well
         fieldElement.hide = self.hide || _sh.parseBool(propertyDefinition.hide);
         // added for AT-214; when element is hidden, fieldContainer for that element should be hidden as well
@@ -883,6 +885,7 @@
       this.toggleClass("vertical", isVertical, fieldsContainer);
       if (this._isFormArrayRow) {
         this.toggleClass("horizontal", !isVertical, fieldsContainer);
+        this.hideLabelsForElements();
       }
     },
     /**
