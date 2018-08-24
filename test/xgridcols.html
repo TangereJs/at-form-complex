@@ -91,7 +91,7 @@
           assert.deepEqual(element.schema, schema);
 
           // insertPoint should have layout and vertical classes
-          assert.equal(element.$.insertPoint.classList.contains('layout'), true);
+          assert.equal(element.$.insertPoint.classList.contains('layout'), false);
           assert.equal(element.$.insertPoint.classList.contains('vertical'), true);
 
           // individual elements should have flex class
@@ -197,7 +197,7 @@
           assert.deepEqual(element.schema, getSchema());
 
           // insertPoint should have layout and vertical classes
-          assert.equal(element.$.insertPoint.classList.contains('layout'), true);
+          assert.equal(element.$.insertPoint.classList.contains('layout'), false);
           assert.equal(element.$.insertPoint.classList.contains('vertical'), true);
 
           // individual elements should have flex class
@@ -223,7 +223,7 @@
 
           // insertPoint should not have layout and horizontal classes
           assert.equal(element.$.insertPoint.classList.contains('layout'), false);
-          assert.equal(element.$.insertPoint.classList.contains('vertical'), false);
+          assert.equal(element.$.insertPoint.classList.contains('vertical'), true);
           assert.equal(element.$.insertPoint.classList.contains('horizontal'), false);
 
           var schemaWithXgridcols = getSchemaWithXgridcols();
