@@ -8,6 +8,9 @@
 <link rel="import" href="../iron-label/iron-label.html">
 <link rel="import" href="../at-core-view/at-core-view.html">
 <link rel="import" href="../at-core-resize-sensor/at-core-resize-sensor.html">
+<link rel="import" href="../at-core-activity/at-core-activity.html">
+
+<link rel="import" href="../at-core-schema/jsyaml-import.html">
 
 <dom-module id="at-form-complex">
   <template>
@@ -68,6 +71,8 @@
         min-height: 32px;
       }
     </style>
+    <at-core-activity id="schemaActivity" handle-as="text" url="[[schemaUrl]]" headers='{ "X-Client": "Now" }' on-response="_handleSchemaActivityResponse" on-error="_handleSchemaActivityError"></at-core-activity>
+    <div id="messages" class="font-body1"></div>
     <div class="wrapper">
       <at-core-resize-sensor id="resizeSensor" on-resize-sensed="_handleResizeSensed"></at-core-resize-sensor>
       <div class="clear-float"></div>
@@ -95,6 +100,13 @@
     is: 'at-form-complex',
     behaviors: [Tangere.behaviors.i18n, Tangere.behaviors.RulesEvaluation, Tangere.behaviors.formUIGeneric],
     properties: {
+
+      schemaUrl: {
+        type: String,
+        value: '',
+        observer: "_schemaUrlChanged"
+      },
+
       /**
        * Textual label for the element
        * @property label
@@ -244,6 +256,41 @@
       this._isReady = true;
     },
 
+    _schemaUrlChanged: function(newValue, oldValue) {
+      if (!this._isString(newValue)) return;
+      if (newValue.length == 0) return;
+
+      Polymer.dom(this.$.insertPoint).placeholder = this.placeholder;
+
+      this.$.schemaActivity.generateRequest();
+    },
+    
+    _handleSchemaActivityResponse: function(event) {
+      var newSchemaStr = event.detail;
+
+      try {
+        var newSchema = JSON.parse(newSchemaStr);
+      } catch (e) {
+        // try yaml
+        try {
+          newSchema = window.jsyaml.load(newSchemaStr);
+        } catch (e) {
+          Polymer.dom(this.$.insertPoint).innerHTML = "";
+          this._setError('Data returned by remote service is not a json string nor yaml string.');
+          // close modal and clear placeholder, because next time _initialize is called placeholder should be set
+          // this._clearPlaceholder();
+          return;
+        }
+      }
+
+      // this will trigger _schemaChanged but since schemaUrl is set _schemaChanged will return immediatelly
+      this.schema = newSchema;
+    },
+
+    _handleSchemaActivityError: function(event) {
+
+    },
+
     // map legacy xtypes
     // this list is also in at-form-complex and at-core-dashboard
     // DO NOT EXTEND THIS LIST; for new elements xtype should be the element name, so there is no need to new elements to be in this list
@@ -281,6 +328,8 @@
     },
 
     _schemaChanged: function(newValue, oldValue) {
+      this._setError("");
+
       var _sh = window.schemaHelpers;
 
       if (_sh.isString(newValue)) {
@@ -297,18 +346,9 @@
         }
         return;
       }
-
-      var hint = this.$.hint;
-      var previousHintValue = Polymer.dom(hint).innerHTML;
-      // check if newValue is valid schema object
-      // if its invalid whatever the previous schema was that remains visible to the user
-      if (!_sh.isObject(newValue) || !_sh.isObject(newValue.properties)) {
-        Polymer.dom(hint).innerHTML = "Invalid schema. Schema doesn't contain a 'properties' property";
-        return;
-      } else {
-        Polymer.dom(hint).innerHTML = previousHintValue;
-      }
-
+      
+      if (!_sh.isObject(newValue) || !_sh.isObject(newValue.properties)) return;
+      
       // if value is set before schema, this._internalData is already updated
       // if schema is set first this._internalData is undefined so its initialized to empty object
       if (!this._internalData) {
@@ -938,6 +978,16 @@
       var propLen = Object.keys(schema.properties).length;
       if (propLen === 0) return true;
       return false;
-    }
+    },
+
+    _isString: function(obj) { return Object.prototype.toString.call(obj) === "[object String]"; },
+    
+    _setError: function(text) {
+      Polymer.dom(this.$.messages).innerHTML = '';
+      Polymer.dom(this.$.messages).classList.remove('info');
+      Polymer.dom(this.$.messages).classList.add('error');
+      Polymer.dom(this.$.messages).textContent = text;
+      Polymer.dom(this.$.messages).removeAttribute('hidden');
+    },
   });
 </script>
