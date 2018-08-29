@@ -597,12 +597,14 @@
       Polymer.dom.flush();
       this.$.resizeSensor.reset();
       var currentWidth = this.$.resizeSensor.queryWidth();
+      
+      // NOTE This flag tells when form complex has completed rendering all the elements
+      this.__rendered__ = true;
+      
       if (!isNaN(currentWidth)) {
         this._updateLayoutForWidth(currentWidth);
       }
 
-      // NOTE This flag tells when form complex has completed rendering all the elements
-      this.__rendered__ = true;
       this.fire('rendered', this, { bubbles: false });
     },
 
