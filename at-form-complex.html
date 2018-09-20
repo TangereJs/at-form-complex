@@ -853,6 +853,13 @@
           fieldElement.disabled = parsedValue || schemaHelpers.parseBool(properties[propertyName].disabled);
         }
       });
+
+      // When at-form-complex disabled state changes from true to false all elements are enabled
+      // But, a rule can exist that that disables a specific element on at-form-complex
+      // so rules are evaluated to restore the disabled state of the specific element to a state when at-form-complex was enabled
+      if (oldValue == true && newValue == false) {
+        this._executeRuleEvaluation(this.schema);
+      }
     },
 
     _hideChanged: function(newValue, oldValue) {
