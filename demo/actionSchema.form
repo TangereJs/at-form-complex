@@ -43,6 +43,24 @@ properties:
     title: Custom Form
     name: promptForm
     disabled: !!bool true
+  items:
+    type: array
+    title: Utterances
+    name: items
+    schema: |-
+      {
+       "items": {
+        "properties": {
+         "value": {
+          "type": "string",
+          "title": "Utterance"
+         }
+        }
+       }
+      }
+    hideLabel: !!bool true
+    default: '[]'
+    xgridcols: 12
 $meta: {}
 rules:
   - caption: Open Url
