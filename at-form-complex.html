@@ -551,7 +551,7 @@
         Polymer.dom(fieldElement).setAttribute('id', propertyName);
         self._elementsToValidate.push(fieldElement);
 
-        fieldElement.hideLabel = self._isFormArrayRow && self.layout == "horizontal";
+        fieldElement.hideLabel = (!!self._isFormArrayRow && self.layout == "horizontal") || propertyDefinition.hideLabel;
 
         // if at-form-complex is initially hidden, element should be hidden as well
         fieldElement.hide = self.hide || _sh.parseBool(propertyDefinition.hide);
