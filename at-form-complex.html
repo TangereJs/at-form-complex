@@ -966,6 +966,14 @@
       });
     },
 
+    /* call this function to refresh any code-mirror instances on show/hide */ 
+    refresh: function() {
+      this._iterateElements(function(elt) {
+        if (elt.refresh == undefined) return;
+        elt.refresh();
+      });
+    },
+
     /**
      * A helper function for iterating over all elements on the form-complex
      */
