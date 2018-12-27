@@ -828,8 +828,11 @@
           this._internalData[property] = clonedValue;
           this.value[property] = clonedValue;
         }
+        
+        // we call validate here for this branch only, because _evaluateRules already calls at-form-complex validate or the other branch
+        this.validate();
       }
-      this.validate();
+      
       this.fire('value-changed', { value: this.value, property: property }, { bubbles: false });
     },
 
