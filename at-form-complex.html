@@ -90,6 +90,7 @@
         </div>
       </div>
     </div>
+
   </template>
 </dom-module>
 
@@ -237,7 +238,7 @@
       var newWidth = event.detail.value.width;
       this._updateLayoutForWidth(newWidth);
     },
-
+    
     _updateLayoutForWidth: function(newWidth) {
       if (isNaN(newWidth)) return;
       if (this._isFormArrayRow) return;
@@ -245,7 +246,7 @@
 
       if (newWidth < 600) {
         this.layout = "vertical";
-
+      
       } else {
         this.layout = "horizontal";
       }
@@ -263,7 +264,7 @@
 
       this.$.schemaActivity.generateRequest();
     },
-
+    
     _handleSchemaActivityResponse: function(event) {
       var newSchemaStr = event.detail;
 
@@ -345,9 +346,9 @@
         }
         return;
       }
-
+      
       if (!_sh.isObject(newValue) || !_sh.isObject(newValue.properties)) return;
-
+      
       // if value is set before schema, this._internalData is already updated
       // if schema is set first this._internalData is undefined so its initialized to empty object
       if (!this._internalData) {
@@ -412,9 +413,7 @@
 
         var displayType = propDef.displayType;
         var elementName = self._getElementName(displayType);
-        if (elementName == undefined) {
-          elementName = displayType;
-        }
+        if (elementName == undefined) { elementName = displayType; }
 
         if (!elementName) {
           console.debug("Please add a mapping for (type, xtype) = (" + propDef.type + ", " + propDef.xtype + ") to displayTypeToFormElementMapping object in at-form-complex");
@@ -594,27 +593,25 @@
       // if any element is required in schema its valid state is updated after creation
       // at-form-complex needs to reflect that state
       this.validate();
-
+      
       Polymer.dom.flush();
       this.$.resizeSensor.reset();
       var currentWidth = this.$.resizeSensor.queryWidth();
-
+      
       // NOTE This flag tells when form complex has completed rendering all the elements
       this.__rendered__ = true;
-
+      
       if (!isNaN(currentWidth)) {
         this._updateLayoutForWidth(currentWidth);
       }
 
-      this.fire('rendered', this, {
-        bubbles: false
-      });
+      this.fire('rendered', this, { bubbles: false });
     },
 
     attached: function() {
       Polymer.dom.flush();
       this.$.resizeSensor.reset();
-
+      
       var currentWidth = this.$.resizeSensor.queryWidth();
       if (isNaN(currentWidth)) return;
       this._updateLayoutForWidth(currentWidth);
@@ -831,17 +828,12 @@
           this._internalData[property] = clonedValue;
           this.value[property] = clonedValue;
         }
-
+        
         // we call validate here for this branch only, because _evaluateRules already calls at-form-complex validate or the other branch
         this.validate();
       }
-
-      this.fire('value-changed', {
-        value: this.value,
-        property: property
-      }, {
-        bubbles: false
-      });
+      
+      this.fire('value-changed', { value: this.value, property: property }, { bubbles: false });
     },
 
     _disabledChanged: function(newValue, oldValue) {
@@ -853,26 +845,23 @@
 
       var fieldsContainer = this.$.insertPoint;
       var fieldElement;
+      var properties = this.schema.properties;
+      var propertyNames = properties ? Object.keys(properties) : [];
+      var parsedValue = schemaHelpers.parseBool(newValue);
+      var self = this;
 
-      if (this.schema && this.schema.properties) {
-        var properties = this.schema.properties;
-        var propertyNames = properties ? Object.keys(properties) : [];
-        var parsedValue = schemaHelpers.parseBool(newValue);
-        var self = this;
-
-        propertyNames.forEach(function(propertyName) {
-          fieldElement = self.getElement(propertyName);
-          if (fieldElement) {
-            fieldElement.disabled = parsedValue || schemaHelpers.parseBool(properties[propertyName].disabled);
-          }
-        });
-
-        // When at-form-complex disabled state changes from true to false all elements are enabled
-        // But, a rule can exist that that disables a specific element on at-form-complex
-        // so rules are evaluated to restore the disabled state of the specific element to a state when at-form-complex was enabled
-        if (oldValue == true && newValue == false) {
-          this._executeRuleEvaluation(this.schema);
+      propertyNames.forEach(function(propertyName) {
+        fieldElement = self.getElement(propertyName);
+        if (fieldElement) {
+          fieldElement.disabled = parsedValue || schemaHelpers.parseBool(properties[propertyName].disabled);
         }
+      });
+
+      // When at-form-complex disabled state changes from true to false all elements are enabled
+      // But, a rule can exist that that disables a specific element on at-form-complex
+      // so rules are evaluated to restore the disabled state of the specific element to a state when at-form-complex was enabled
+      if (oldValue == true && newValue == false) {
+        this._executeRuleEvaluation(this.schema);
       }
     },
 
@@ -880,11 +869,9 @@
       var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
 
-      if (this._elementsToValidate) {
-        this._elementsToValidate.forEach(function(element) {
-          element.hide = newValue;
-        });
-      }
+      this._elementsToValidate.forEach(function(element) {
+        element.hide = newValue;
+      });
     },
 
     focus: function() {
@@ -902,21 +889,18 @@
     },
 
     _clearUIValidState: function() {
+      var properties = this.schema.properties;
+      var propertyNames = Object.keys(properties);
+      var self = this;
 
-      if (this.schema && this.schema.properties) {
-        var properties = this.schema.properties;
-        var propertyNames = Object.keys(properties);
-        var self = this;
-
-        propertyNames.forEach(function(properyName) {
-          var element = self.getElement(properyName);
-          if (element && element.clearUIValidState) {
-            element.clearUIValidState();
-          } else if (element && element._clearUIValidState) {
-            element._clearUIValidState();
-          }
-        });
-      }
+      propertyNames.forEach(function(properyName) {
+        var element = self.getElement(properyName);
+        if (element && element.clearUIValidState) {
+          element.clearUIValidState();
+        } else if (element && element._clearUIValidState) {
+          element._clearUIValidState();
+        }
+      });
     },
 
     /*
@@ -930,18 +914,14 @@
       }
 
       var isValid = true;
-      if (showError === undefined) {
-        showError = this.autoValidate;
-      }
+      if (showError === undefined) { showError = this.autoValidate; }
 
-      if (this._elementsToValidate) {
-        this._elementsToValidate.forEach(function(element) {
-          if (!element.disabled && !element.hide && isFunction(element.validate)) {
-            var elementValid = element.validate(showError);
-            isValid = isValid && elementValid;
-          }
-        });
-      }
+      this._elementsToValidate.forEach(function(element) {
+        if (!element.disabled && !element.hide && isFunction(element.validate)) {
+          var elementValid = element.validate(showError);
+          isValid = isValid && elementValid;
+        }
+      });
 
       return isValid;
     },
@@ -989,7 +969,7 @@
       });
     },
 
-    /* call this function to refresh any code-mirror instances on show/hide */
+    /* call this function to refresh any code-mirror instances on show/hide */ 
     refresh: function() {
       this._iterateElements(function(elt) {
         if (elt.refresh == undefined) return;
@@ -1020,10 +1000,8 @@
       return false;
     },
 
-    _isString: function(obj) {
-      return Object.prototype.toString.call(obj) === "[object String]";
-    },
-
+    _isString: function(obj) { return Object.prototype.toString.call(obj) === "[object String]"; },
+    
     _setError: function(text) {
       Polymer.dom(this.$.messages).innerHTML = '';
       Polymer.dom(this.$.messages).classList.remove('info');
