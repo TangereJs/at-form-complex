@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>at-form-complex tests</title>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes"/>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+
+    <link rel="import" href="../at-form-complex.html" />
+  </head>
+
+  <body>
+    <test-fixture id="schemaIsEmptyObject">
+      <template>
+        <at-form-complex schema="{}"></at-form-complex>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="schemaHasEmptyProperties">
+      <template>
+        <at-form-complex schema="{ properties: {} }"></at-form-complex>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="propertyTests">
+      <template>
+        <at-form-complex></at-form-complex>
+      </template>
+    </test-fixture>
+
+    <script>
+
+      function filddleWithElement(elt) {
+        elt.schemaUrl = "";
+        assert.equal(elt.schemaUrl, '');
+
+        elt.label = "Lorem ipsum";
+        elt.label = "";
+
+        elt.hideLabel = true;
+        elt.hideLabel = false;
+
+        elt.placeholder = "Lorem ipsum";
+
+        elt.attached();
+
+        elt.updateFormElementValue('prop1', 'val1');
+        
+        elt.setElementState('prop1', 'disabled', true);
+
+        var prop = elt.getElement('prop1');
+        assert.isNull(prop);
+
+        elt.value = {
+          prop1: 'value1'
+        };
+
+        elt._updateValueObject('prop1', 'value1');
+
+        elt.disabled = true;
+        elt.disabled = false;
+
+        elt.hide = true;
+        elt.hide = false;
+
+        elt.focus();
+
+        elt._clearUIValidState();
+
+        elt.validate(false);
+        elt.validate(true);
+
+        elt.layout = "vertical";
+        elt.layout = "horizontal";
+
+        elt.hideLabelsForElements();
+        elt.showLabelsForElements();
+
+        elt.addFlexClassToElements();
+        elt.removeFlexClassFromElements();
+        elt.refresh();
+      }
+
+      suite('schema is set as attribute and is empty object', function() { 
+
+        test('fiddle with properties and functions', function() {
+          var elt = fixture('schemaIsEmptyObject');
+
+          filddleWithElement(elt);
+        });
+
+      });
+    
+      suite('schema is set as attribute and has empty properties property', function() { 
+
+        test('fiddle with properties and functions', function() { 
+          var elt = fixture('schemaHasEmptyProperties');
+
+          filddleWithElement(elt);
+        });
+
+      });
+
+      suite('schema is set as property and is empty object', function() { 
+
+        test('fiddle with properties and functions', function() { 
+          var elt = fixture('propertyTests');
+
+          elt.schema = {};
+
+          filddleWithElement(elt);
+
+          elt = fixture('propertyTests');
+
+          elt.schema = '{}';
+
+          filddleWithElement(elt);
+        });
+
+      });
+
+      suite('schema is set as property and has empty properties property', function() { 
+
+        test('fiddle with properties and functions', function() { 
+          var elt = fixture('propertyTests');
+
+          elt.schema = { properties: {} };
+
+          filddleWithElement(elt);
+
+          elt.schema = '{ "properties": {} }';
+
+          filddleWithElement(elt);
+        });
+
+      });
+
+    </script>
+  </body>
+</html>

@@ -869,6 +869,7 @@
       var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
 
+      if (!this._elementsToValidate) return;
       this._elementsToValidate.forEach(function(element) {
         element.hide = newValue;
       });
@@ -889,6 +890,9 @@
     },
 
     _clearUIValidState: function() {
+      if (!this._isObject(this.schema)) return;
+      if (!this._isObject(this.schema.properties)) return;
+
       var properties = this.schema.properties;
       var propertyNames = Object.keys(properties);
       var self = this;
@@ -916,12 +920,14 @@
       var isValid = true;
       if (showError === undefined) { showError = this.autoValidate; }
 
-      this._elementsToValidate.forEach(function(element) {
-        if (!element.disabled && !element.hide && isFunction(element.validate)) {
-          var elementValid = element.validate(showError);
-          isValid = isValid && elementValid;
-        }
-      });
+      if (this._elementsToValidate) {
+        this._elementsToValidate.forEach(function(element) {
+          if (!element.disabled && !element.hide && isFunction(element.validate)) {
+            var elementValid = element.validate(showError);
+            isValid = isValid && elementValid;
+          }
+        });
+      }
 
       return isValid;
     },
@@ -981,6 +987,9 @@
      * A helper function for iterating over all elements on the form-complex
      */
     _iterateElements: function(callback) {
+      if (!this._isObject(this.schema)) return;
+      if (!this._isObject(this.schema.properties)) return;
+
       var fieldsContainer = Polymer.dom(this.$.insertPoint);
       var properties = this.schema.properties;
 
@@ -1009,5 +1018,7 @@
       Polymer.dom(this.$.messages).textContent = text;
       Polymer.dom(this.$.messages).removeAttribute('hidden');
     },
+
+    _isObject: function(obj) { return Object.prototype.toString.call(obj) === "[object Object]"; }
   });
 </script>
