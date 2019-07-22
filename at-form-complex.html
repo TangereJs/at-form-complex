@@ -71,7 +71,7 @@
         min-height: 32px;
       }
     </style>
-    <at-core-activity id="schemaActivity" handle-as="text" url="[[schemaUrl]]" headers='{ "X-Client": "Now" }' on-response="_handleSchemaActivityResponse" on-error="_handleSchemaActivityError"></at-core-activity>
+    <at-core-activity id="schemaActivity" handle-as="text" headers='{ "X-Client": "Now" }' on-response="_handleSchemaActivityResponse" on-error="_handleSchemaActivityError"></at-core-activity>
     <div id="messages" class="font-body1"></div>
     <div class="wrapper">
       <at-core-resize-sensor id="resizeSensor" on-resize-sensed="_handleResizeSensed"></at-core-resize-sensor>
@@ -107,6 +107,12 @@
         observer: "_schemaUrlChanged"
       },
 
+      schemaUrlPrefix: {
+        type: String,
+        value: '',
+        observer: "_schemaUrlChanged"
+      },
+
       /**
        * Textual label for the element
        * @property label
@@ -118,6 +124,7 @@
         value: '',
         title: 'Label'
       },
+
       /**
        * When true hides the label for the element
        * @property hideLabel
@@ -130,6 +137,7 @@
         observer: '_hideLabelChanged',
         title: 'Do not show the label'
       },
+
       /**
        * Specification of elements that should appear on the element.<br/>
        * Provide either an object or string.<br/>
@@ -257,11 +265,16 @@
     },
 
     _schemaUrlChanged: function(newValue, oldValue) {
-      if (!this._isString(newValue)) return;
-      if (newValue.length == 0) return;
-
+    
+      if (!this.schemaUrl) return;
       Polymer.dom(this.$.insertPoint).placeholder = this.placeholder;
+      
+      var url = this.schemaUrlPrefix ? this.schemaUrlPrefix : "";
+      url = url + this.schemaUrl;
 
+      if (url.indexOf("/") == -1) return; // url needs to be absolute or relative, but not in samefolder; schemaUrlPrefix not yet set
+
+      this.$.schemaActivity.url = url;
       this.$.schemaActivity.generateRequest();
     },
     
@@ -274,7 +287,7 @@
         // try yaml
         try {
           newSchema = window.jsyaml.load(newSchemaStr);
-        } catch (e) {
+        } catch (e) {          
           Polymer.dom(this.$.insertPoint).innerHTML = "";
           this._setError('Data returned by remote service is not a json string nor yaml string.');
           // close modal and clear placeholder, because next time _initialize is called placeholder should be set
