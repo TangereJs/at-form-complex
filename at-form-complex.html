@@ -352,6 +352,7 @@
           if newValue is an invalid json string just return. Whatever the previous schema was that remains visible to the user
         */
         try {
+          if (newValue == "") newValue = '{"properties": {}}';
           newValue = JSON.parse(newValue);
           this.schema = newValue;
         } catch (e) {
