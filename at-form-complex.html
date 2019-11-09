@@ -1003,6 +1003,7 @@
     _iterateElements: function(callback) {
       if (!this._isObject(this.schema)) return;
       if (!this._isObject(this.schema.properties)) return;
+      if (Object.keys(this.schema.properties).length == 0) return;
 
       var fieldsContainer = Polymer.dom(this.$.insertPoint);
       var properties = this.schema.properties;
