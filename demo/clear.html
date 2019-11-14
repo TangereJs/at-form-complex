@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <title>at-form-complex demo</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../at-form-complex.html">
+  <link rel="import" href="../../at-core-style-classes/at-core-style-classes.html" />
+
+</head>
+
+ <at-form-complex id="formComplex" ></at-form-complex>
+ <button id="setButton" type="button" class="block">set</button>
+ <button id="clearButton" type="button" class="block">clear</button>
+   
+  <script>
+    window.addEventListener('WebComponentsReady', function (e) {
+      var setButton = document.getElementById('setButton');
+      var clearButton = document.getElementById('clearButton');
+      var formComplex = document.getElementById("formComplex");
+
+      formComplex.schema = {
+        'properties': {
+          'title': {
+            'title': 'Title',
+            'type': 'string',
+            'name':'title'
+          },
+        },
+        'rules': [],
+        '$meta': {}
+      };
+
+      setButton.addEventListener('click', function(event) {
+        formComplex.value = { title: "test" }
+      });
+
+      clearButton.addEventListener('click', function(event) {
+        formComplex.value = {};
+      });
+      
+    });
+  </script>
+</body>
+
+</html>
