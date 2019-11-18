@@ -698,6 +698,7 @@
         return;
       }
 
+      this._internalData[elementId] = value;
       this.value[elementId] = value;
       fieldElement.value = value;
 
@@ -735,6 +736,7 @@
     },
 
     _valueChanged: function(newValue, oldValue) {
+      var self = this;
       var _sh = window.schemaHelpers;
 
       if (_sh.isString(newValue)) {
@@ -763,6 +765,18 @@
         this._internalData = {};
       }
       var _internalData = this._internalData;
+
+      // fallback to default value in schema when new value objects doesn't contain property
+      if (this.schema && this.schema.properties) {
+        var schemaPropertyKeys = Object.getOwnPropertyNames(self.schema.properties);
+
+        schemaPropertyKeys.forEach(function (schemaPropertyKey, schemaPropertyIndex) {
+          if (newValue.hasOwnProperty(schemaPropertyKey) == false) {
+            self.updateFormElementValue(schemaPropertyKey, self.schema.properties[schemaPropertyKey].default);
+            _internalData[schemaPropertyKey] = self.schema.properties[schemaPropertyKey].default;
+          }
+        });
+      }    
 
       // update _internalData with keys from newValue
       var newValueKeys = Object.keys(newValue);

@@ -11,38 +11,51 @@
 
 </head>
 
- <at-form-complex id="formComplex" ></at-form-complex>
- <button id="setButton" type="button" class="block">set</button>
- <button id="clearButton" type="button" class="block">clear</button>
-   
-  <script>
-    window.addEventListener('WebComponentsReady', function (e) {
-      var setButton = document.getElementById('setButton');
-      var clearButton = document.getElementById('clearButton');
-      var formComplex = document.getElementById("formComplex");
+<at-form-complex id="formComplex"></at-form-complex>
+<button id="setButton" type="button" class="block">set</button>
+<button id="clearButton" type="button" class="block">clear</button>
 
-      formComplex.schema = {
-        'properties': {
-          'title': {
-            'title': 'Title',
-            'type': 'string',
-            'name':'title'
-          },
+<script>
+  window.addEventListener('WebComponentsReady', function (e) {
+    var setButton = document.getElementById('setButton');
+    var clearButton = document.getElementById('clearButton');
+    var formComplex = document.getElementById("formComplex");
+
+    formComplex.schema = {
+      'properties': {
+        'title': {
+          'type': 'string',
+          'title': 'Title',
+          'name': 'title',
+          'default': ''
         },
-        'rules': [],
-        '$meta': {}
-      };
+        'text1': {
+          'type': 'string',
+          'title': 'Text1',
+          'name': 'text1',
+          'default': 'Hello World 1!'
+        },
+        'text2': {
+          'type': 'string',
+          'title': 'Text2',
+          'name': 'text2',
+          'default': 'Hello World 2!'
+        },
+      },
+      'rules': [],
+      '$meta': {}
+    };
 
-      setButton.addEventListener('click', function(event) {
-        formComplex.value = { title: "test" }
-      });
-
-      clearButton.addEventListener('click', function(event) {
-        formComplex.value = {};
-      });
-      
+    setButton.addEventListener('click', function (event) {
+      formComplex.value = { title: "test" }
     });
-  </script>
+
+    clearButton.addEventListener('click', function (event) {
+      formComplex.value = { };
+    });
+
+  });
+</script>
 </body>
 
 </html>
