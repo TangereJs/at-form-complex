@@ -765,32 +765,20 @@
         this._internalData = {};
       }
       var _internalData = this._internalData;
-
-      // fallback to default value in schema when new value objects doesn't contain property
-      if (this.schema && this.schema.properties) {
-        var schemaPropertyKeys = Object.getOwnPropertyNames(self.schema.properties);
-
-        schemaPropertyKeys.forEach(function (schemaPropertyKey, schemaPropertyIndex) {
-          if (newValue.hasOwnProperty(schemaPropertyKey) == false) {
-            self.updateFormElementValue(schemaPropertyKey, self.schema.properties[schemaPropertyKey].default);
-            _internalData[schemaPropertyKey] = self.schema.properties[schemaPropertyKey].default;
-          }
-        });
-      }    
-
+      
       // update _internalData with keys from newValue
       var newValueKeys = Object.keys(newValue);
       newValueKeys.forEach(function(key, index) {
         _internalData[key] = JSON.parse(JSON.stringify(newValue[key]));
       });
-
+      
       if (!_sh.isObject(this.schema) || !_sh.isObject(this.schema.properties) || Object.keys(this.schema.properties).length === 0) {
         // when schema is not set data-changed event should still be fired so that behavior is the same as when schema is set
         this._fireValueChangedEvent(this.value);
         // this means that schema is not set and at-form-complex is not initialized; return
         return;
       }
-
+      
       // at this point this._internalData contains updated values for each element on the form because
       // 1) if schema was set first, this._internalData was already populated with initial values for each element,
       //    and entries from newValue are merged into this._internalData
@@ -799,6 +787,20 @@
 
       var fieldsContainer = Polymer.dom(this.$.insertPoint);
       var fieldElement;
+
+      // fallback to default value in schema when new value objects doesn't contain property
+      if (this.schema && this.schema.properties) {
+        var schemaPropertyKeys = Object.getOwnPropertyNames(self.schema.properties);
+
+        schemaPropertyKeys.forEach(function (schemaPropertyKey, schemaPropertyIndex) {
+          if (newValue.hasOwnProperty(schemaPropertyKey) == false) {
+            // only update form element value if .default value is available
+            if (self.schema.properties[schemaPropertyKey].default != undefined) {
+              self.updateFormElementValue(schemaPropertyKey, self.schema.properties[schemaPropertyKey].default);
+            }
+          }
+        });
+      }
 
       // use newValueKeys here because only keys from newValue are the ones changing
       newValueKeys.forEach(function(propertyName) {
