@@ -138,6 +138,18 @@
         title: 'Do not show the label'
       },
 
+
+      /**
+       * becomes true when all elements are rendered
+       * @property rendered
+       * @type Boolean
+       * @default false
+       */
+      rendered: {
+        type: Boolean,
+        value: false
+      },
+
       /**
        * Specification of elements that should appear on the element.<br/>
        * Provide either an object or string.<br/>
@@ -250,7 +262,7 @@
     _updateLayoutForWidth: function(newWidth) {
       if (isNaN(newWidth)) return;
       if (this._isFormArrayRow) return;
-      if (!this.__rendered__) return;
+      if (!this.rendered) return;
 
       if (newWidth < 600) {
         this.layout = "vertical";
@@ -265,7 +277,7 @@
     },
 
     _schemaUrlChanged: function(newValue, oldValue) {
-    
+      
       if (!this.schemaUrl) return;
       Polymer.dom(this.$.insertPoint).placeholder = this.placeholder;
       
@@ -280,14 +292,14 @@
     
     _handleSchemaActivityResponse: function(event) {
       var newSchemaStr = event.detail;
-
+      
       try {
         var newSchema = JSON.parse(newSchemaStr);
       } catch (e) {
         // try yaml
         try {
           newSchema = window.jsyaml.load(newSchemaStr);
-        } catch (e) {          
+        } catch (e) {                    
           Polymer.dom(this.$.insertPoint).innerHTML = "";
           this._setError('Data returned by remote service is not a json string nor yaml string.');
           // close modal and clear placeholder, because next time _initialize is called placeholder should be set
@@ -383,8 +395,8 @@
         self._unsupported_types = ["object"];
       }
 
-      // NOTE This flag tells when form complex has completed rendering all the elements
-      this.__rendered__ = false;
+      // This flag tells when form complex has completed rendering all the elements
+      this.rendered = false;
 
       // clear the previous html content in the container
       Polymer.dom(this.$.insertPoint).innerHTML = "";
@@ -479,7 +491,7 @@
         Polymer.dom(insertPoint).classList.add('layout');
         Polymer.dom(insertPoint).classList.add(this.layout);
       }
-
+      debugger;
       propertyNames.forEach(function(propertyName) {
         propertyDefinition = propDefs[propertyName];
 
@@ -612,14 +624,15 @@
       this.$.resizeSensor.reset();
       var currentWidth = this.$.resizeSensor.queryWidth();
       
-      // NOTE This flag tells when form complex has completed rendering all the elements
-      this.__rendered__ = true;
+      // This flag tells when form complex has completed rendering all the elements
+      this.rendered = true;
       
       if (!isNaN(currentWidth)) {
         this._updateLayoutForWidth(currentWidth);
       }
 
-      this.fire('rendered', this, { bubbles: false });
+      // todo: analyze problem that it seems that it doesn't bubble to at-carbon-form-modal 
+      this.fire('rendered', this, { bubbles: true, composed: true });
     },
 
     attached: function() {
